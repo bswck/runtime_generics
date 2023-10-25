@@ -1,0 +1,54 @@
+[tool.poetry]
+name = "runtime-generics"
+version = "0.1.0"
+description = "Generic classes that respect their type arguments in their runtime instances."
+authors = ["bswck <bswck.dev@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+packages = [{include = "runtime_generics"}]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+
+[tool.poetry.group.dev.dependencies]
+mypy = "^1.6.1"
+ruff = "^0.1.2"
+pytest = "^7.4.3"
+
+[tool.ruff]
+select = ["ALL"]
+# To discuss the presented rationales, contact the author: @bswck.
+ignore = [
+    # Description: Missing type annotation for self in method
+    # Rationale: It is mostly redundant, as is for ANN102.
+    "ANN101",
+
+    # Description: Missing type annotation for cls in method
+    # Rationale: It is mostly redundant, as is for ANN101.
+    "ANN102",
+
+    # Description: Dynamically typed expressions (typing.Any) are disallowed
+    # Rationale:
+    #  We use Any to allow user to constrain return types of our functions on their own.
+    #  For example, having a function `def foo() -> Any: ...` allows user to write
+    #  `my_foo: int = foo()` and have it passed type checking, since `Any` disables
+    #  type checking completely.
+    "ANN401",
+
+    # Description: 1 blank line required before class docstring
+    # Rationale: D211 (no-blank-line-before-class) preferred.
+    "D203",
+
+    # Description: Multi-line docstring summary should start at the second line
+    # Rationale: D213 (multi-line-summary-second-line) preferred.
+    "D212",
+]
+
+exclude = ["test_*.py"]
+
+[tool.mypy]
+enable_incomplete_feature = ["TypeVarTuple"]
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
