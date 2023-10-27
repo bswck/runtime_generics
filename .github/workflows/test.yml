@@ -23,4 +23,4 @@ jobs:
         coverage run -m pytest -v .
     - name: Check coverage
       run: >-
-        coverage report --fail-under=50 -m --omit=test_runtime_generics.py
+        coverage report --fail-under=96 -m --omit=test_runtime_generics.py
