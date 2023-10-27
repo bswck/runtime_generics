@@ -64,7 +64,7 @@ if __name__ == "__main__":
     if release_confirm != "y":
         abort(f"You said no when prompted to bump the {version!r} version.")
 
-    shell(cmd("poetry self add poetry-bumpversion"))
+    shell(cmd("poetry self add poetry-bumpversion@latest"))
 
     _LOGGER.info("Bumping the %r version", version)
 
