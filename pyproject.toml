@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "runtime-generics"
-version = "0.1.0"
+version = "0.1.2"
 description = "Generic classes that respect their type arguments in their runtime instances."
 authors = ["bswck <bswck.dev@gmail.com>"]
 license = "MIT"
