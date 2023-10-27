@@ -43,12 +43,30 @@ assert my_generic.type_argument is int
 ```
 
 # Installation
+
+## For users 💻
 ```bash
 pip install runtime_generics
 ```
 
+## For developers ❤️
+First, [install Poetry](https://python-poetry.org/docs/#installation).
+Poetry is an amazing tool for managing dependencies & virtual environments, building packages and publishing them.
+Be sure to have Python 3.8 installed. If you use pyenv, simply run:
+```bash
+pyenv install 3.8
+```
+
+Then, run:
+```bash
+git clone https://github.com/bswck/runtime_generics && cd runtime_generics && ./install && poetry shell
+```
+
+Since you are a developer, I assume that you use Linux.
+Good luck!
+
 # Legal info
 © Copyright by [bswck](https://github.com/bswck).
 
-[All rights explained](/LICENSE).
+[All rights explained in the LICENSE file](/LICENSE).
 This software is licensed under the [MIT License](https://opensource.org/licenses/MIT).
