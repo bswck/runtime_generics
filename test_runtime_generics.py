@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 from typing import Any, Generic, TypeVar
+from typing import get_args as _typing_get_args
 
+from pytest import raises
 from typing_extensions import TypeVarTuple
 
 from runtime_generics import get_arg, get_args, get_argument, runtime_generic
@@ -31,6 +33,8 @@ class VariadicGeneric(VariadicGenericBase):  # type: ignore[valid-type,misc]
 
 def test_args_single() -> None:
     assert SingleArgGeneric[int]().__args__ == (int,)
+    assert SingleArgGeneric[int].__args__ == (int,)  # type: ignore[attr-defined,misc]
+    assert _typing_get_args(SingleArgGeneric[int]) == (int,)
 
 
 def test_get_args_single() -> None:
@@ -41,6 +45,9 @@ def test_get_arg() -> None:
     assert get_arg(SingleArgGeneric[complex]()) == complex
     assert get_arg(SingleArgGeneric[float]()) != int
     assert get_argument is get_arg
+
+    with raises(ValueError):
+        get_arg(TwoArgGeneric[int, str]())
 
 
 def test_args_two() -> None:

@@ -36,9 +36,10 @@ from __future__ import annotations
 
 from functools import partial
 from typing import TYPE_CHECKING, Any, Protocol, TypeVar
+from typing import _GenericAlias as _typing_GenericAlias  # type: ignore[attr-defined]
 from typing import get_args as _typing_get_args
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     from collections.abc import Callable
 
 __all__ = (
@@ -52,7 +53,10 @@ __all__ = (
 class GenericProtocol(Protocol):  # pylint: disable=too-few-public-methods
     """Protocol for runtime generics."""
 
-    def __class_getitem__(cls, item: tuple[type[Any], ...]) -> Callable[..., Any]:
+    def __class_getitem__(
+        cls,
+        item: tuple[type[Any], ...],
+    ) -> Callable[..., Any]:  # pragma: no cover
         ...
 
 
@@ -73,6 +77,11 @@ def _note_args(cls: type[Any], alias: Any, /, *args: object, **kwargs: object) -
     return instance
 
 
+class _GenericFactoryProxy(_typing_GenericAlias, _root=True):  # type: ignore[call-arg]
+    def __call__(self, *args: object, **kwargs: object) -> Any:
+        return partial(_note_args, self.__origin__, self)(*args, **kwargs)
+
+
 class _RuntimeGenericDescriptor:  # pylint: disable=too-few-public-methods
     def __init__(self, factory: Callable[..., Any]) -> None:
         self.factory = factory
@@ -84,9 +93,11 @@ class _RuntimeGenericDescriptor:  # pylint: disable=too-few-public-methods
     ) -> Callable[..., Any]:
         __tracebackhide__ = True  # pylint: disable=unused-variable
         cls = owner
-        if cls is None:
+        if cls is None:  # pragma: no cover
+            # Probably redundant, but we support this case anyway
+            # https://docs.python.org/3/reference/datamodel.html#object.__get__
             cls = type(instance)
-        return lambda args: partial(_note_args, cls, self.factory(args))
+        return lambda args: _GenericFactoryProxy(cls, args)
 
 
 def runtime_generic(cls: type[T]) -> type[T]:
