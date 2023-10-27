@@ -55,7 +55,7 @@ assert my_generic.type_argument is int
 
 ## For users 💻
 ```bash
-pip install runtime_generics
+pip install runtime-generics
 ```
 
 ## For developers ❤️
