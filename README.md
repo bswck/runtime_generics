@@ -51,4 +51,4 @@ pip install runtime_generics
 © Copyright by [bswck](https://github.com/bswck).
 
 [All rights explained](/LICENSE).
-This software licensed under the [MIT License](https://opensource.org/licenses/MIT).
+This software is licensed under the [MIT License](https://opensource.org/licenses/MIT).
