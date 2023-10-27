@@ -1,0 +1,2 @@
+# Manual alias for a long pre-commit command
+pre-commit run --all-files --hook-stage push

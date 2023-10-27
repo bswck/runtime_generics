@@ -9,11 +9,10 @@ $ ./release [major|minor|patch|<major>.<minor>.<patch>]
 """
 
 import argparse
+import functools
 import logging
 import subprocess
 import sys
-from functools import partial
-from typing import cast
 
 _LOGGER = logging.getLogger("release")
 
@@ -25,10 +24,10 @@ if __name__ == "__main__":
     )
     _LOGGER.addHandler(_LOGGER_HANDLER)
 
-    cmd, shell = str.split, partial(subprocess.run, check=True)
+    cmd, shell = str.split, functools.partial(subprocess.run, check=True)
 
     def abort(msg: str, /) -> None:
-        """Display an error message and exit with -1."""
+        """Display an error message and exit the script process with status code -1."""
         _LOGGER.critical(msg)
         sys.exit(-1)
 
@@ -47,32 +46,20 @@ if __name__ == "__main__":
     ).stdout.decode()
 
     if files_changed:
-        continue_confirm = (
-            input(
-                "There are uncommitted changes in the working tree in these files:\n"
-                f"{files_changed}\n"
-                "Continue? They will be included in the release commit. (y/n) [n]: ",
-            )
-            .casefold()
-            .strip()
-            or "n"
-        )[0]
+        msg = (
+            "There are uncommitted changes in the working tree in these files:\n"
+            f"{files_changed}\n"
+            "Continue? They will be included in the release commit. (y/n) [n]: "
+        )
+        continue_confirm = (input(msg).casefold().strip() or "n")[0]
         if continue_confirm != "y":
             abort("Uncommitted changes in the working tree.")
 
     # If we get here, we should be good to go
     # Let's do a final check for safety
-    release_confirm = (
-        (
-            input(
-                f"You are about to release {version!r} version. "
-                "Are you sure? (y/n) [y]: ",
-            )
-            .casefold()
-            .strip()
-        )
-        or "y"
-    )[0]
+    msg = f"You are about to release {version!r} version. Are you sure? (y/n) [y]: "
+
+    release_confirm = ((input(msg).casefold().strip()) or "y")[0]
 
     if release_confirm != "y":
         abort(f"You said no when prompted to bump the {version!r} version.")
@@ -83,35 +70,25 @@ if __name__ == "__main__":
 
     shell([*cmd("poetry version"), version])
 
-    new_version = (
-        "v"
-        + cast(
-            str,
-            shell(
-                cmd("poetry version --short"),
-                capture_output=True,
-            ),
-        ).strip()
+    new_version = "v" + (
+        shell(cmd("poetry version --short"), capture_output=True)
+        .stdout.decode()
+        .strip()
     )
 
     files_changed_for_release = shell(
         cmd("git diff --name-only HEAD"),
         capture_output=True,
-    )
+    ).stdout.decode()
+
     if files_changed_for_release:
         shell(cmd("git diff"))
-        commit_confirm = (
-            (
-                input(
-                    "You are about to commit and push auto-changed files due "
-                    "to version upgrade, see the diff view above. "
-                    "Are you sure? (y/n) [y]: ",
-                )
-                .casefold()
-                .strip()
-            )
-            or "y"
-        )[0]
+        msg = (
+            "You are about to commit and push auto-changed files due "
+            "to version upgrade, see the diff view above. "
+            "Are you sure? (y/n) [y]: "
+        )
+        commit_confirm = ((input(msg).casefold().strip()) or "y")[0]
 
         if commit_confirm == "y":
             shell([*cmd("git commit -am"), f"Release `{new_version}`"])
