@@ -1,4 +1,4 @@
-# runtime_generics
+# runtime_generics `0.1.0`
 Highly into typing your Python code? Ever wanted to reuse type arguments of your generic classes at runtime, in their instances?
 
 If so, then this is for you!
@@ -47,6 +47,8 @@ assert my_generic.type_argument is int
 pip install runtime_generics
 ```
 
-# Copyrights
-(C) Copyright by [@bswck](https://github.com/bswck), 2023.
-Software licensed under the [MIT License](https://opensource.org/licenses/MIT).
+# Legal info
+© Copyright by [bswck](https://github.com/bswck).
+
+[All rights explained](/LICENSE).
+This software licensed under the [MIT License](https://opensource.org/licenses/MIT).
