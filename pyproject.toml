@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "runtime-generics"
-version = "0.1.1"
+version = "0.1.0"
 description = "Generic classes that respect their type arguments in their runtime instances."
 authors = ["bswck <bswck.dev@gmail.com>"]
 license = "MIT"
@@ -51,9 +51,8 @@ exclude = ["test_*.py"]
 [tool.mypy]
 enable_incomplete_feature = ["TypeVarTuple"]
 
-[tool.poetry_bumpversion.file."README.md"]
-search = "{current_version}"
-replace = "{new_version}"
+[[tool.poetry_bumpversion.replacements]]
+files = ["./README.md"]
 
 [build-system]
 requires = ["poetry-core"]

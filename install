@@ -1,0 +1,10 @@
+# Usage: ./install && poetry shell
+poetry install -q
+poetry env use 3.8 -q
+
+DIR="$(dirname "$(readlink -f "$0")")"
+CMD="export PATH=\$PATH:$DIR/scripts"
+APPEND="\n# Add repo scripts to PATH for convenience.\n$CMD\n"
+ACTIVATE="$(poetry env info -p)/bin/activate"
+
+echo $APPEND >> $ACTIVATE

@@ -1,0 +1,3 @@
+# Manual alias for a long pre-commit command
+# Run this before pushing ensure that the code is formatted and package locks are up-to-date
+pre-commit run --all-files --hook-stage push
