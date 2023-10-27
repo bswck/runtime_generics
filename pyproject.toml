@@ -5,7 +5,7 @@ description = "Generic classes that respect their type arguments in their runtim
 authors = ["bswck <bswck.dev@gmail.com>"]
 license = "MIT"
 readme = "README.md"
-packages = [{include = "runtime_generics"}]
+packages = [{include = "runtime_generics.py"}]
 
 [tool.poetry.dependencies]
 python = "^3.8"
