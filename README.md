@@ -1,4 +1,4 @@
-# `runtime_generics` 0.1.0
+# `runtime_generics` 0.1.1
 Highly into typing your Python code? Ever wanted to reuse type arguments of your generic classes at runtime, in their instances?
 
 If so, then this is for you!
