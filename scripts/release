@@ -5,7 +5,7 @@ Automate the release process by updating local files, creating and pushing a new
 The actual release is made via GitHub Actions.
 
 Usage:
-$ ./release [major|minor|patch|<major>.<minor>.<patch>]
+$ release [major|minor|patch|<major>.<minor>.<patch>]
 """
 
 import argparse
