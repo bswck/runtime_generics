@@ -17,8 +17,8 @@ pytest = "^7.4.3"
 coverage = "^7.3.2"
 
 [tool.ruff]
+# To discuss the presented rationales, contact the author (bswck).
 select = ["ALL"]
-# To discuss the presented rationales, contact the author: @bswck.
 ignore = [
     # Description: Missing type annotation for self in method
     # Rationale: It is mostly redundant, as is for ANN102.
@@ -37,18 +37,20 @@ ignore = [
     "ANN401",
 
     # Description: 1 blank line required before class docstring
-    # Rationale: D211 (no-blank-line-before-class) preferred.
+    # Rationale: Remove the warning -- D211 (no-blank-line-before-class) preferred.
     "D203",
 
     # Description: Multi-line docstring summary should start at the second line
-    # Rationale: D213 (multi-line-summary-second-line) preferred.
+    # Rationale: Remove the warning -- D213 (multi-line-summary-second-line) preferred.
     "D212",
 ]
-
 exclude = ["test_*.py"]
 
 [tool.mypy]
 enable_incomplete_feature = ["TypeVarTuple"]
+
+[tool.poetry_bumpversion.file."README.md"]
+search = "version = \""
 
 [build-system]
 requires = ["poetry-core"]
