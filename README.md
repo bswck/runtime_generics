@@ -1,4 +1,4 @@
-# `runtime_generics` 1.0.0
+# runtime_generics `1.0.0`
 <p align="center">
 <a href="https://pypi.org/project/runtime_generics" target="_blank">
     <img src="https://img.shields.io/pypi/v/runtime_generics?color=%2334D058&label=PyPI Package" alt="Package version">
@@ -8,9 +8,10 @@
 </a>
 </p>
 
-Highly into typing your Python code?
+Highly into type-safe Python code?
 
-_runtime_generics_ is a Python library that allows you to intercept type arguments explicitly passed to generic classes at runtime in a convenient way.
+_runtime_generics_ is a niche Python library that allows you to reuse type arguments explicitly passed at runtime
+to generic classes before instantiation.
 
 # Simple example
 3.12+ ([PEP 695](https://peps.python.org/pep-0695) syntax):

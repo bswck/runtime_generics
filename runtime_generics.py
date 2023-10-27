@@ -1,8 +1,12 @@
 """
-Runtime generics.
+runtime_generics — A library for working with runtime generics in Python.
 
-This module provides a decorator that can be used to mark a class as a runtime generic
-and a function that can be used to get the type arguments of a runtime generic instance.
+This library provides a decorator that allows you to mark a class as
+a 'runtime generic': after instantiation, the class will have a `__args__` attribute
+that contains the type arguments of the instance.
+
+You can conveniently access the type arguments using the
+`get_args` function, or the `get_arg` function if the class has exactly one type.
 
 Examples
 --------
