@@ -1,9 +1,9 @@
-# runtime_generics `0.1.0`
+# `runtime_generics` 0.1.0
 Highly into typing your Python code? Ever wanted to reuse type arguments of your generic classes at runtime, in their instances?
 
 If so, then this is for you!
 
-`runtime_generics` is a Python library that allows you to access type arguments of your generic classes through their instances at runtime.
+_runtime_generics_ is a Python library that allows you to access type arguments of your generic classes through their instances at runtime.
 
 # Simple example
 3.12+ ([PEP 695](https://peps.python.org/pep-0695) syntax):

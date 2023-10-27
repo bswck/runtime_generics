@@ -52,7 +52,8 @@ exclude = ["test_*.py"]
 enable_incomplete_feature = ["TypeVarTuple"]
 
 [tool.poetry_bumpversion.file."README.md"]
-search = "version = \""
+search = "{current_version}"
+replace = "{new_version}"
 
 [build-system]
 requires = ["poetry-core"]
