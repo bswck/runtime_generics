@@ -20,7 +20,7 @@ jobs:
         pip install -r requirements-dev.txt
     - name: Run tests
       run: >-
-        coverage run -m pytest -v tests/
+        coverage run -m pytest -v .
     - name: Check coverage
       run: >-
         coverage report --fail-under=50 -m
