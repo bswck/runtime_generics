@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# (C) bswck
 """
 Automate the release process by updating local files, creating and pushing a new tag.
 
