@@ -23,7 +23,7 @@ jobs:
         black --check .
     - name: Analyse the code with pylint
       run: >-
-        pylint . --fail-under=9
+        pylint runtime_generics.py --fail-under=9
     - name: Analyse the code with ruff
       run: >-
         ruff .

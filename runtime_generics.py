@@ -49,10 +49,10 @@ __all__ = (
 )
 
 
-class GenericProtocol(Protocol):
+class GenericProtocol(Protocol):  # pylint: disable=too-few-public-methods
     """Protocol for runtime generics."""
 
-    def __class_getitem__(cls, args: tuple[type[Any], ...]) -> Callable[..., Any]:
+    def __class_getitem__(cls, item: tuple[type[Any], ...]) -> Callable[..., Any]:
         ...
 
 
@@ -66,14 +66,14 @@ class _RuntimeGenericArgs(tuple):  # type: ignore[type-arg]
 
 
 def _note_args(cls: type[Any], alias: Any, /, *args: object, **kwargs: object) -> Any:
-    __tracebackhide__ = True
+    __tracebackhide__ = True  # pylint: disable=unused-variable
     instance: Any = cls.__new__(cls, *args, **kwargs)
     instance.__args__ = _RuntimeGenericArgs(_typing_get_args(alias))
-    instance.__init__(*args, **kwargs)
+    instance.__init__(*args, **kwargs)  # pylint: disable=unnecessary-dunder-call
     return instance
 
 
-class _RuntimeGenericDescriptor:
+class _RuntimeGenericDescriptor:  # pylint: disable=too-few-public-methods
     def __init__(self, factory: Callable[..., Any]) -> None:
         self.factory = factory
 
@@ -82,7 +82,7 @@ class _RuntimeGenericDescriptor:
         instance: object,
         owner: type[Any] | None = None,
     ) -> Callable[..., Any]:
-        __tracebackhide__ = True
+        __tracebackhide__ = True  # pylint: disable=unused-variable
         cls = owner
         if cls is None:
             cls = type(instance)
@@ -105,7 +105,7 @@ def runtime_generic(cls: type[T]) -> type[T]:
     >>> Foo[int]().__args__
     (int,)
     """
-    __tracebackhide__ = True  # Hide from any tracebacks in pytest.
+    __tracebackhide__ = True  # pylint: disable=unused-variable
     descriptor = _RuntimeGenericDescriptor(cls.__class_getitem__)
     cls.__class_getitem__ = descriptor  # type: ignore[assignment,method-assign]
     return cls
@@ -134,7 +134,7 @@ def get_args(instance: object) -> tuple[Any, ...]:
     >>> args
     (<class 'int'>,)
     """
-    __tracebackhide__ = True  # Hide from any tracebacks in pytest.
+    __tracebackhide__ = True  # pylint: disable=unused-variable
     args = getattr(instance, "__args__", ())
     return tuple(args) if isinstance(args, _RuntimeGenericArgs) else ()
 
@@ -167,7 +167,7 @@ def get_arg(instance: object) -> Any:
     >>> arg
     <class 'int'>
     """
-    __tracebackhide__ = True  # Hide from any tracebacks in pytest.
+    __tracebackhide__ = True  # pylint: disable=unused-variable
     args = get_args(instance)
     if len(args) != 1:
         msg = (
