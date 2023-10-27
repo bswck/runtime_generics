@@ -77,7 +77,10 @@ def _note_args(cls: type[Any], alias: Any, /, *args: object, **kwargs: object) -
     return instance
 
 
-class _GenericFactoryProxy(_typing_GenericAlias, _root=True):  # type: ignore[call-arg]
+class _GenericFactoryProxy(
+    _typing_GenericAlias,  # type: ignore[misc,call-arg]
+    _root=True,
+):
     def __call__(self, *args: object, **kwargs: object) -> Any:
         return partial(_note_args, self.__origin__, self)(*args, **kwargs)
 

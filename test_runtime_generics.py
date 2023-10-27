@@ -33,7 +33,7 @@ class VariadicGeneric(VariadicGenericBase):  # type: ignore[valid-type,misc]
 
 def test_args_single() -> None:
     assert SingleArgGeneric[int]().__args__ == (int,)
-    assert SingleArgGeneric[int].__args__ == (int,)  # type: ignore[attr-defined,misc]
+    assert SingleArgGeneric[int].__args__ == (int,)  # type: ignore[misc]
     assert _typing_get_args(SingleArgGeneric[int]) == (int,)
 
 
