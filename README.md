@@ -8,11 +8,9 @@
 </a>
 </p>
 
-Highly into typing your Python code? Ever wanted to reuse type arguments of your generic classes at runtime, in their instances?
+Highly into typing your Python code?
 
-If so, then this is for you!
-
-_runtime_generics_ is a Python library that allows you to access type arguments of your generic classes through their instances at runtime.
+_runtime_generics_ is a Python library that allows you to intercept type arguments explicitly passed to generic classes at runtime in a convenient way.
 
 # Simple example
 3.12+ ([PEP 695](https://peps.python.org/pep-0695) syntax):
@@ -59,9 +57,17 @@ pip install runtime-generics
 ```
 
 ## For developers ❤️
-First, [install Poetry](https://python-poetry.org/docs/#installation).
+_Note: If you use Windows, it is highly recommended to complete the installation in the supported way through [WSL2](https://learn.microsoft.com/en-us/windows/wsl/install)._
+
+First, [install Poetry](https://python-poetry.org/docs/#installation).<br/>
 Poetry is an amazing tool for managing dependencies & virtual environments, building packages and publishing them.
-Be sure to have Python 3.8 installed. If you use pyenv, simply run:
+
+```bash
+curl -sSL https://install.python-poetry.org | python3 -
+```
+<sub>This way of installing Poetry on Linux is valid as of 2023-10-27.<br/> If you encounter any problems, refer to [the official documentation](https://python-poetry.org/docs/#installation) for the most up-to-date installation instructions.</sub>
+
+Be sure to have Python 3.8 installed—if you use [pyenv](https://github.com/pyenv/pyenv#readme), simply run:
 ```bash
 pyenv install 3.8
 ```
@@ -70,9 +76,6 @@ Then, run:
 ```bash
 git clone https://github.com/bswck/runtime_generics && cd runtime_generics && ./install && poetry shell
 ```
-
-Since you are a developer, I assume that you use Linux.
-Good luck!
 
 # Legal info
 © Copyright by [bswck](https://github.com/bswck).
