@@ -1,4 +1,13 @@
-# `runtime_generics` 0.1.2
+# `runtime_generics` 0.1.0
+<p align="center">
+<a href="https://pypi.org/project/runtime_generics" target="_blank">
+    <img src="https://img.shields.io/pypi/v/runtime_generics?color=%2334D058&label=PyPI Package" alt="Package version">
+</a>
+<a href="https://pypi.org/project/runtime_generics" target="_blank">
+    <img src="https://img.shields.io/pypi/pyversions/runtime_generics.svg?label=Python" alt="Supported Python versions">
+</a>
+</p>
+
 Highly into typing your Python code? Ever wanted to reuse type arguments of your generic classes at runtime, in their instances?
 
 If so, then this is for you!
