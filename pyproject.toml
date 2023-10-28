@@ -55,6 +55,20 @@ enable_incomplete_feature = ["TypeVarTuple"]
 [[tool.poetry_bumpversion.replacements]]
 files = ["./README.md"]
 
+[tool.coverage.report]
+precision = 2
+exclude_lines = [
+    "pragma: no cover",
+    "raise NotImplementedError",
+    "if TYPE_CHECKING:",
+    "if typing.TYPE_CHECKING:",
+    "@overload",
+    "@typing.overload",
+    "\\(Protocol\\):$",
+    "typing.assert_never",
+    "assert_never",
+]
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"

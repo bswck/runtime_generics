@@ -43,7 +43,7 @@ from typing import TYPE_CHECKING, Any, Protocol, TypeVar
 from typing import _GenericAlias as _typing_GenericAlias  # type: ignore[attr-defined]
 from typing import get_args as _typing_get_args
 
-if TYPE_CHECKING:  # pragma: no cover
+if TYPE_CHECKING:
     from collections.abc import Callable
 
 __all__ = (
