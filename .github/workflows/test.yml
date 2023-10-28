@@ -1,4 +1,4 @@
-name: Test & measure coverage
+name: Tests
 
 on: [push]
 

@@ -1,4 +1,4 @@
-name: Lint (black --check, pylint, ruff)
+name: Lint
 
 on: [push]
 

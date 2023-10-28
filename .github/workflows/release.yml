@@ -1,4 +1,4 @@
-name: Publish to PyPI (via Trusted Publisher, poetry)
+name: PyPI
 
 on:
   release:
