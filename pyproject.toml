@@ -5,7 +5,7 @@ description = "Reuse type arguments explicitly passed at runtime to a generic cl
 authors = ["bswck <bswck.dev@gmail.com>"]
 license = "MIT"
 readme = "README.md"
-packages = [{include = "runtime_generics.py"}]
+packages = [{include = "runtime_generics/"}]
 
 [tool.poetry.dependencies]
 python = "^3.8"
@@ -47,7 +47,7 @@ ignore = [
     # Rationale: Remove the warning -- D213 (multi-line-summary-second-line) preferred.
     "D212",
 ]
-exclude = ["test_*.py"]
+exclude = ["tests/"]
 
 [tool.mypy]
 enable_incomplete_feature = ["TypeVarTuple"]
