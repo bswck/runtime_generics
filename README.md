@@ -1,12 +1,7 @@
 # runtime_generics `1.0.1`
-<p align="center">
-<a href="https://pypi.org/project/runtime_generics" target="_blank">
-    <img src="https://img.shields.io/pypi/v/runtime_generics?color=%2334D058&label=PyPI Package" alt="Package version">
-</a>
-<a href="https://pypi.org/project/runtime_generics" target="_blank">
-    <img src="https://img.shields.io/pypi/pyversions/runtime_generics.svg?label=Python" alt="Supported Python versions">
-</a>
-</p>
+[![Supported Python versions](https://img.shields.io/pypi/pyversions/runtime_generics.svg?label=Python)](https://pypi.org/project/runtime_generics)
+[![Package version](https://img.shields.io/pypi/v/runtime_generics?color=%2334D058&label=PyPI%20Package)](https://pypi.org/project/runtime_generics)
+[![License](https://img.shields.io/github/license/bswck/runtime_generics.svg?label=License)](https://github.com/pydantic/pydantic/blob/main/LICENSE)
 
 Highly into type-safe Python code?
 
@@ -58,7 +53,7 @@ pip install runtime-generics
 ```
 
 ## For developers ❤️
-_Note: If you use Windows, it is highly recommended to complete the installation in the supported way through [WSL2](https://learn.microsoft.com/en-us/windows/wsl/install)._
+_Note: If you use Windows, it is highly recommended to complete the installation in the way presented below through [WSL2](https://learn.microsoft.com/en-us/windows/wsl/install)._
 
 First, [install Poetry](https://python-poetry.org/docs/#installation).<br/>
 Poetry is an amazing tool for managing dependencies & virtual environments, building packages and publishing them.
