@@ -92,7 +92,7 @@ if __name__ == "__main__":
         commit_confirm = ((input(msg).casefold().strip()) or "y")[0]
 
         if commit_confirm == "y":
-            shell([*cmd("git commit -am"), f"Release `{new_version}`"])
+            shell([*cmd("git commit -am"), f"Release {new_version}"])
             shell(cmd("git push"))
         else:
             abort(
