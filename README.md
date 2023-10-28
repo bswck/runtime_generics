@@ -1,4 +1,4 @@
-# runtime_generics `1.0.0`
+# runtime_generics `1.0.1`
 <p align="center">
 <a href="https://pypi.org/project/runtime_generics" target="_blank">
     <img src="https://img.shields.io/pypi/v/runtime_generics?color=%2334D058&label=PyPI Package" alt="Package version">
