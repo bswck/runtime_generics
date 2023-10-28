@@ -80,6 +80,4 @@ git clone https://github.com/bswck/runtime_generics && cd runtime_generics && ./
 
 # Legal info
 © Copyright by [bswck](https://github.com/bswck).
-
-[All rights explained in the LICENSE file](/LICENSE).
 This software is licensed under the [MIT License](https://opensource.org/licenses/MIT).
