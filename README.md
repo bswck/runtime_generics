@@ -1,7 +1,7 @@
 # runtime_generics `1.0.2`
 [![Supported Python versions](https://img.shields.io/pypi/pyversions/runtime_generics.svg?label=Python)](https://pypi.org/project/runtime_generics)
 [![Package version](https://img.shields.io/pypi/v/runtime_generics?color=%2334D058&label=PyPI%20Package)](https://pypi.org/project/runtime_generics)
-[![License](https://img.shields.io/github/license/bswck/runtime_generics.svg?label=License)](https://github.com/pydantic/pydantic/blob/main/LICENSE)
+[![License](https://img.shields.io/github/license/bswck/runtime_generics.svg?label=License)](https://github.com/bswck/runtime_generics/blob/main/LICENSE)
 
 Highly into type-safe Python code?
 
@@ -11,7 +11,7 @@ to generic classes before instantiation.
 # Simple example
 3.12+ ([PEP 695](https://peps.python.org/pep-0695) syntax):
 ```python
-from runtime_generics import runtime_generic, get_arg
+from runtime_generics import get_arg, runtime_generic
 
 @runtime_generic
 class MyGeneric[T]:
@@ -30,7 +30,7 @@ assert my_generic.type_argument is int
 from __future__ import annotations
 
 from typing import Generic, TypeVar
-from runtime_generics import runtime_generic, get_arg
+from runtime_generics import get_arg, runtime_generic
 
 T = TypeVar("T")
 
