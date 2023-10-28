@@ -1,4 +1,8 @@
-# Usage: ./install && poetry shell
+#!usr/bin/env bash
+# (C) bswck
+#
+# Usage:
+# $ ./install && poetry shell
 poetry install -q
 
 if [ $? -eq 0 ]; then
