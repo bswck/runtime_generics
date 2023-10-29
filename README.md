@@ -1,4 +1,4 @@
-# runtime_generics `1.0.2` [![Supported Python versions](https://img.shields.io/pypi/pyversions/runtime_generics.svg?label=)](https://pypi.org/project/runtime_generics)
+# runtime_generics `1.0.2` [![Supported Python versions](https://img.shields.io/pypi/pyversions/runtime_generics.svg?logo=python&label=Python)](https://pypi.org/project/runtime_generics)
 
 [![Tests](https://github.com/bswck/runtime_generics/actions/workflows/test.yml/badge.svg)](https://github.com/bswck/runtime_generics/actions/workflows/test.yml)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
