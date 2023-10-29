@@ -4,6 +4,10 @@ on: [push]
 
 jobs:
   test:
+    env:
+      SMOKESHOW_GITHUB_STATUS_DESCRIPTION: CLI Coverage {coverage-percentage}
+      SMOKESHOW_GITHUB_COVERAGE_THRESHOLD: 50
+      SMOKESHOW_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -22,5 +26,10 @@ jobs:
       run: >-
         coverage run -m pytest -v .
     - name: Check coverage
-      run: >-
-        coverage report --fail-under=96 -m --omit=tests/test_runtime_generics.py
+      run: |
+        coverage report
+        coverage html
+    - name: Install smokeshow and upload coverage
+      run: |
+        pip install smokeshow
+        smokeshow upload htmlcov/index.html

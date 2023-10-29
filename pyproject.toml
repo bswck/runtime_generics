@@ -56,7 +56,8 @@ enable_incomplete_feature = ["TypeVarTuple"]
 files = ["./README.md"]
 
 [tool.coverage.report]
-precision = 2
+omit = ["tests/*"]
+fail_under = 96
 exclude_lines = [
     "pragma: no cover",
     "raise NotImplementedError",
