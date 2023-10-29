@@ -1,8 +1,9 @@
-# runtime_generics `1.0.2`
+# runtime_generics `1.0.2` [![Supported Python versions](https://img.shields.io/pypi/pyversions/runtime_generics.svg?label=)](https://pypi.org/project/runtime_generics)
+
 [![Tests](https://github.com/bswck/runtime_generics/actions/workflows/test.yml/badge.svg)](https://github.com/bswck/runtime_generics/actions/workflows/test.yml)
-[![Lint](https://github.com/bswck/runtime_generics/actions/workflows/lint.yml/badge.svg?color=)](https://github.com/bswck/runtime_generics/actions/workflows/lint.yml)
-[![Supported Python versions](https://img.shields.io/pypi/pyversions/runtime_generics.svg?label=Python)](https://pypi.org/project/runtime_generics)
-[![Package version](https://img.shields.io/pypi/v/runtime_generics?label=PyPI%20Package)](https://pypi.org/project/runtime_generics)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+[![Code style](https://img.shields.io/badge/code%20style-black-000000.svg?label=Code%20style)](https://github.com/psf/black)
+[![Package version](https://img.shields.io/pypi/v/runtime_generics?label=PyPI)](https://pypi.org/project/runtime_generics)
 [![License](https://img.shields.io/github/license/bswck/runtime_generics.svg?label=License)](https://github.com/bswck/runtime_generics/blob/main/LICENSE)
 
 Highly into type-safe Python code?
