@@ -5,11 +5,6 @@ on: [push]
 jobs:
   test:
     environment: test
-    env:
-      SMOKESHOW_GITHUB_STATUS_DESCRIPTION: CLI Coverage {coverage-percentage}
-      SMOKESHOW_GITHUB_COVERAGE_THRESHOLD: 50
-      SMOKESHOW_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      SMOKESHOW_AUTH_KEY: ${{ secrets.SMOKESHOW_AUTH_KEY }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -31,9 +26,9 @@ jobs:
     - name: Report coverage
       run: |
         coverage report
-        coverage html
-    - name: Install smokeshow and upload coverage
-      if: ${{ matrix.python-minor-version == 8 }}
-      run: |
-        pip install smokeshow
-        smokeshow upload htmlcov/index.html
+        coverage html --show-contexts --title "runtime_generics coverage for ${{ github.sha }}"
+    - name: Store coverage html
+      uses: actions/upload-artifact@v3
+      with:
+        name: coverage-html
+        path: htmlcov
