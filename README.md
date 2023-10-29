@@ -1,6 +1,8 @@
 # runtime_generics `1.0.2`
+[![Tests](https://github.com/bswck/runtime_generics/actions/workflows/test.yml/badge.svg)](https://github.com/bswck/runtime_generics/actions/workflows/test.yml)
+[![Lint](https://github.com/bswck/runtime_generics/actions/workflows/lint.yml/badge.svg?color=)](https://github.com/bswck/runtime_generics/actions/workflows/lint.yml)
 [![Supported Python versions](https://img.shields.io/pypi/pyversions/runtime_generics.svg?label=Python)](https://pypi.org/project/runtime_generics)
-[![Package version](https://img.shields.io/pypi/v/runtime_generics?color=%2334D058&label=PyPI%20Package)](https://pypi.org/project/runtime_generics)
+[![Package version](https://img.shields.io/pypi/v/runtime_generics?label=PyPI%20Package)](https://pypi.org/project/runtime_generics)
 [![License](https://img.shields.io/github/license/bswck/runtime_generics.svg?label=License)](https://github.com/bswck/runtime_generics/blob/main/LICENSE)
 
 Highly into type-safe Python code?
