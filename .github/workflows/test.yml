@@ -9,6 +9,7 @@ jobs:
       SMOKESHOW_GITHUB_STATUS_DESCRIPTION: CLI Coverage {coverage-percentage}
       SMOKESHOW_GITHUB_COVERAGE_THRESHOLD: 50
       SMOKESHOW_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      SMOKESHOW_AUTH_KEY: ${{ secrets.SMOKESHOW_AUTH_KEY }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
