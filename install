@@ -1,4 +1,4 @@
-#!usr/bin/env bash
+#!/usr/bin/env bash
 # (C) bswck
 #
 # Usage:
@@ -28,4 +28,4 @@ CMD="export PATH=\$PATH:$DIR/scripts"
 APPEND="\n# Add repo scripts to PATH for convenience.\n$CMD\n"
 ACTIVATE="$(poetry env info -p)/bin/activate"
 
-echo $APPEND >> $ACTIVATE
+echo -e $APPEND >> $ACTIVATE
