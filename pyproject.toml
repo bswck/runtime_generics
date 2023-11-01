@@ -50,6 +50,7 @@ ignore = [
 exclude = ["tests/"]
 
 [tool.mypy]
+strict = true
 enable_incomplete_feature = ["TypeVarTuple"]
 
 [[tool.poetry_bumpversion.replacements]]
