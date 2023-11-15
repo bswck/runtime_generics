@@ -10,21 +10,32 @@ Highly into type-safe Python code?
 
 _runtime_generics_ is a niche Python library that allows you to reuse type arguments explicitly passed at runtime
 to generic classes before instantiation.
+The library does two things:
+- makes it possible to retrieve the type argument passed to the generic class at runtime
+  before the class was instantiated;
+- given a parametrized generic class (generic alias),
+  it makes every class method use generic alias `cls` instead of the origin class.
 
 # Simple example
 3.12+ ([PEP 695](https://peps.python.org/pep-0695) syntax):
 ```python
-from runtime_generics import get_arg, runtime_generic
+from runtime_generics import runtime_generic, select
 
 @runtime_generic
 class MyGeneric[T]:
     type_argument: type[T]
 
     def __init__(self) -> None:
-        self.type_argument = get_arg(self)
+        self.type_argument = select[T](self)
+
+    @classmethod
+    def whoami(cls):
+        print(f"I am {cls}")
 
 my_generic = MyGeneric[int]()
 assert my_generic.type_argument is int
+my_generic.whoami()  # I am MyGeneric[int]
+
 ```
 
 3.8+:
@@ -33,7 +44,7 @@ assert my_generic.type_argument is int
 from __future__ import annotations
 
 from typing import Generic, TypeVar
-from runtime_generics import get_arg, runtime_generic
+from runtime_generics import runtime_generic, select
 
 T = TypeVar("T")
 
@@ -42,10 +53,15 @@ class MyGeneric(Generic[T]):
     type_argument: type[T]
 
     def __init__(self) -> None:
-        self.type_argument = get_arg(self)
+        self.type_argument = select[T](self)
+
+    @classmethod
+    def whoami(cls):
+        print(f"I am {cls}")
 
 my_generic = MyGeneric[int]()
 assert my_generic.type_argument is int
+my_generic.whoami()  # I am MyGeneric[int]
 ```
 
 # Installation
