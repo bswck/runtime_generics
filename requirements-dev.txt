@@ -103,15 +103,9 @@ iniconfig==2.0.0 ; python_version >= "3.8" and python_version < "4.0" \
 isort==5.12.0 ; python_version >= "3.8" and python_version < "4.0" \
     --hash=sha256:8bef7dde241278824a6d83f44a544709b065191b95b6e50894bdc722fcba0504 \
     --hash=sha256:f84c2818376e66cf843d497486ea8fed8700b340f308f076c6fb1229dff318b6
-jaraco-functools==3.9.0 ; python_version >= "3.8" and python_version < "4.0" \
-    --hash=sha256:8b137b0feacc17fef4bacee04c011c9e86f2341099c870a1d12d3be37b32a638 \
-    --hash=sha256:df2e2b0aadd2dfcee2d7e0d7d083d5a5b68f4c8621e6915ae9819a90de65dd44
 mccabe==0.7.0 ; python_version >= "3.8" and python_version < "4.0" \
     --hash=sha256:348e0240c33b60bbdf4e523192ef919f28cb2c3d7d5c7794f74009290f236325 \
     --hash=sha256:6c2d30ab6be0e4a46919781807b4f0d834ebdd6c6e3dca0bda5a15f863427b6e
-more-itertools==10.1.0 ; python_version >= "3.8" and python_version < "4.0" \
-    --hash=sha256:626c369fa0eb37bac0291bce8259b332fd59ac792fa5497b59837309cd5b114a \
-    --hash=sha256:64e0735fcfdc6f3464ea133afe8ea4483b1c5fe3a3d69852e6503b43a0b222e6
 mypy-extensions==1.0.0 ; python_version >= "3.8" and python_version < "4.0" \
     --hash=sha256:4392f6c0eb8a5668a69e23d168ffa70f0be9ccfd32b5cc2d26a34ae5b844552d \
     --hash=sha256:75dbf8955dc00442a438fc4d0666508a9a97b6bd41aa2f0ffe9d2f2725af0782
