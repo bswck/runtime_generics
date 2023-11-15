@@ -9,9 +9,10 @@ packages = [{include = "runtime_generics/"}]
 
 [tool.poetry.dependencies]
 python = "^3.8"
+jaraco-functools = "^3.9.0"
 
 [tool.poetry.group.dev.dependencies]
-mypy = "^1.6.1"
+mypy = "^1.7.0"
 ruff = "^0.1.2"
 pytest = "^7.4.3"
 coverage = "^7.3.2"
@@ -51,7 +52,9 @@ exclude = ["tests/"]
 
 [tool.mypy]
 strict = true
-enable_incomplete_feature = ["TypeVarTuple"]
+
+[tool.isort]
+profile = "black"
 
 [[tool.poetry_bumpversion.replacements]]
 files = ["./README.md"]
