@@ -11,29 +11,46 @@ with the `get_arguments` using a selector class (see below).
 
 Examples
 --------
-Python 3.8+
->>> from typing import Generic, TypeVar
->>> from runtime_generics import get_arguments, runtime_generic
->>> T = TypeVar("T")
-...
->>> @runtime_generic
-... class Foo(Generic[T]):
-...     def __init__(self) -> None:
-...         print(f"Hello! I am Foo[{get_arguments(self)[0].__name__}] :)")
-...
->>> Foo[int]()
-Hello! I am Foo[int] :)
+```python
 
-Python 3.12+
->>> from runtime_generics import get_arg, runtime_generic
+>>> # Python 3.8+
+... from __future__ import annotations
+... from typing import Generic, TypeVar
+... from runtime_generics import runtime_generic, select
 ...
->>> @runtime_generic
-... class Foo[T]:
+... T = TypeVar("T")
+...
+... @runtime_generic
+... class MyGeneric(Generic[T]):
+...     type_argument: type[T]
+...
 ...     def __init__(self) -> None:
-...         print(f"Hello! I am Foo[{get_arguments(self)[0].__name__}] :)")
+...         self.type_argument = select[T](self)
 ...
->>> Foo[int]()
-Hello! I am Foo[int] :)
+...     @classmethod
+...     def whoami(cls):
+...        print(f"I am {cls}")
+...
+>>> # Python 3.12+
+... from runtime_generics import runtime_generic, select
+...
+... @runtime_generic
+... class MyGeneric[T]:
+...     type_argument: type[T]
+...
+...     def __init__(self) -> None:
+...         self.type_argument = select[T](self)
+...
+...     @classmethod
+...     def whoami(cls):
+...         print(f"I am {cls}")
+...
+>>> my_generic = MyGeneric[int]()
+>>> my_generic.type_argument
+<class 'int'>
+>>> my_generic.whoami()
+I am MyGeneric[int]
+```
 
 """
 
@@ -41,25 +58,15 @@ from __future__ import annotations
 
 import inspect
 from itertools import chain
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    ForwardRef,
-    Generic,
-    Protocol,
-    TypeVar,
-    cast,
-)
+from typing import TYPE_CHECKING, Any, ForwardRef, Generic, Protocol, TypeVar, cast
 from typing import _eval_type as _typing_eval_type  # type: ignore[attr-defined]
 from typing import _GenericAlias as _typing_GenericAlias  # type: ignore[attr-defined]
 from typing import get_args as _typing_get_args
-from warnings import warn
 
-from jaraco.functools import apply, first_invoke
-from typing_extensions import TypeVarTuple, Unpack
+from typing_extensions import TypeVarTuple, Unpack, deprecated
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterator
+    from collections.abc import Callable
 
 
 __all__ = (
@@ -303,10 +310,10 @@ class _Index(Generic[Unpack[GenericArguments]]):
     """Note: right-inclusive."""
 
     @classmethod
-    @apply(tuple)
-    def __get_arguments__(cls, instance: GenericClass) -> Iterator[Any]:
+    def __get_arguments__(cls, instance: GenericClass) -> tuple[Any, ...]:
         arguments = get_all_arguments(instance)
         all_tvars = instance.__class__.__parameters__
+        result: list[Any] = []
 
         for index_object in _typing_get_args(cls):
             if isinstance(index_object, slice):
@@ -318,7 +325,9 @@ class _Index(Generic[Unpack[GenericArguments]]):
                         index_object.step,
                     )
                 )
-                yield from arguments[start : stop if stop is None else stop + 1 : step]
+                result.extend(
+                    arguments[start : stop if stop is None else stop + 1 : step],
+                )
             else:
                 err = f"Expected an integer or a type variable, got {index_object!r}"
                 try:
@@ -328,7 +337,8 @@ class _Index(Generic[Unpack[GenericArguments]]):
                 else:
                     if argument is None:
                         raise TypeError(err) from None
-                yield arguments[argument]
+                result.append(arguments[argument])
+        return tuple(result)
 
 
 # A nuclear workaround for any dubious problems with indexing/slicing,
@@ -381,8 +391,9 @@ def _eval_generic_type(
 
 def get_arguments(
     instance: object,
-    argument_type: type[Select[Unpack[GenericArguments]]]
-    | Index[Unpack[GenericArguments]]
+    argument_type: type[
+        Select[Unpack[GenericArguments]] | Index[Unpack[GenericArguments]]
+    ]
     | str
     | ForwardRef
     | None = None,
@@ -416,8 +427,8 @@ def get_arguments(
 
     Returns
     -------
-    arg
-        The single type argument of the instance.
+    args
+        The type arguments of the instance.
 
     Raises
     ------
@@ -426,43 +437,12 @@ def get_arguments(
 
     Examples
     --------
-    Select argument generic:
     >>> @runtime_generic
     ... class Foo[T]:
     ...     pass
-    >>> arg: type[int] = get(Foo[int]())
-    >>> arg
-    <class 'int'>
-
-    Incorrect use:
-    >>> @runtime_generic
-    ... class Foo[T1, T2]:
-    ...     pass
-    >>> arg: type[int] = get(Foo[int, str]())
-    Traceback (most recent call last):
-    ...
-    ValueError: Expected an instance of a runtime generic
-    to accept exactly one argument, got...
-
-    If you want to get a single type argument from a multi-parameter generic, use
-    the relevant TypeVar to select it. See the variadic generic example below.
-
-    Variadic generic:
-    >>> @runtime_generic
-    ... class Bar[T, *Ts]:
-    ...     pass
-    ...
-    >>> inst = Bar[int, str, bytes]()
-    >>> # Note: T is only bound inside the Bar class
-    >>> arg: type[int] = get(inst, Select[T])
-    >>> arg
-    <class 'int'>
-    >>> # 3.8+
-    >>> variadic_args: tuple[type[str], type[bytes]] = get(inst, Select[Unpack[Ts]])
-    >>> # 3.11+
-    >>> variadic_args: tuple[type[str], type[bytes]] = get(inst, Select[*Ts])
-    >>> variadic_args
-    (<class 'str'>, <class 'bytes'>)
+    >>> args: tuple[type[int]] = get_arguments(Foo[int]())
+    >>> args
+    (<class 'int'>,)
     """
     arguments = get_all_arguments(instance)
 
@@ -479,12 +459,9 @@ def get_arguments(
 
 
 get_args = get_arguments
-get_arg = get_argument = first_invoke(
-    lambda: warn(
-        f"{__name__}.get_arg()/.get_argument() is deprecated"
-        f"use {__name__}.get_arguments() instead",
-        DeprecationWarning,
-        stacklevel=2,
-    ),
-    get_arguments,
-)
+get_arg = get_argument = deprecated(
+    f"{__name__}.get_arg()/.get_argument() is deprecated"
+    f"use {__name__}.get_arguments() instead",
+    category=DeprecationWarning,
+    stacklevel=2,
+)(get_arguments)
