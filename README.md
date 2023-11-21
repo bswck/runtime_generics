@@ -64,15 +64,24 @@ my_generic.whoami()  # I am MyGeneric[int]
 ```
 
 # Installation
+If you want to…
 
 
-## For the users 💻
+## …use this tool in your project 💻
+You might simply install it with pip:
 ```bash
 pip install runtime-generics
 ```
 
+If you use [Poetry](https://python-poetry.org/), then run:
+```bash
+poetry add runtime-generics
+```
 
-## For the contributors ❤️
+## …contribute to  🚀
+
+Happy to accept contributions!
+
 > [!Note]
 > If you use Windows, it is highly recommended to complete the installation in the way presented below through [WSL2](https://learn.microsoft.com/en-us/windows/wsl/install).
 
