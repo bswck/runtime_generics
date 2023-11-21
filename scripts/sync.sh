@@ -2,13 +2,15 @@
 # (C) 2023–present Bartosz Sławecki (bswck)
 #
 # Sync with bswck/skeleton.
-# This script was adopted from https://github.com/bswck/skeleton/tree/dd6dd40/project/scripts/sync.sh.jinja
+# This script was adopted from https://github.com/bswck/skeleton/tree/46980b4/project/scripts/sync.sh.jinja
 #
 # Usage:
 # $ poe sync
 
+# shellcheck disable=SC2005
 
-# Automatically copied from https://github.com/bswck/skeleton/tree/dd6dd40/handle-task-event.sh
+
+# Automatically copied from https://github.com/bswck/skeleton/tree/46980b4/handle-task-event.sh
 
 toggle_workflows() {
     # Toggle workflows depending on the project's settings
@@ -26,13 +28,13 @@ determine_project_path() {
 
 ensure_github_environment() {
     # Ensure that the GitHub environment exists
-    jq -n '{"deployment_branch_policy": {"protected_branches": false, "custom_branch_policies": true}}'|gh api -H "Accept: application/vnd.github+json" -X PUT "/repos/bswck/runtime_generics/environments/$1" --input - | grep ''
+    jq -n '{"deployment_branch_policy": {"protected_branches": false, "custom_branch_policies": true}}'|gh api -H "Accept: application/vnd.github+json" -X PUT "/repos/bswck/runtime_generics/environments/$1" --input -
 }
 
 supply_smokeshow_key() {
     # Supply smokeshow key to the repository
     echo "Checking if smokeshow secret needs to be created..."
-    ensure_github_environment "Smokeshow"
+    ensure_github_environment "Smokeshow" || echo "Failed to create smokeshow environment." 1>&2 && return 1
     if test "$(gh secret list -e Smokeshow | grep -o SMOKESHOW_AUTH_KEY)"
     then
         echo "Smokeshow secret already exists, aborting." && return 0
@@ -58,7 +60,7 @@ determine_new_ref() {
 
 before_update_algorithm() {
     # Stash changes if any
-    if test "$(git diff --name-only | grep "")"
+    if test "echo $(git diff --name-only)"
     then
         echo "There are uncommitted changes in the project."
         git stash push --message "Stash before syncing with gh:bswck/skeleton"
@@ -97,10 +99,10 @@ after_update_algorithm() {
             local COMMIT_MSG="Upgrade to bswck/skeleton of unknown revision"
         fi
     fi
-    while test "$(git diff --check | grep "")"
+    while test echo "$(git diff --check)"
     do
         echo "Cannot commit with the following conflicts:"
-        git diff --check
+        echo "$(git diff --check)"
         echo "Please resolve the conflicts and press Enter to continue."
         read -r
     done
@@ -117,7 +119,7 @@ after_update_algorithm() {
 }
 
 main() {
-    export LAST_REF="dd6dd40"
+    export LAST_REF="46980b4"
     export PROJECT_PATH_KEY="$$_skeleton_project_path"
     export NEW_REF_KEY="$$_skeleton_new_ref"
     export LAST_LICENSE_NAME="MIT"
