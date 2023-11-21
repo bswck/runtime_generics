@@ -97,6 +97,8 @@ after_update_algorithm() {
             local COMMIT_MSG="Upgrade to bswck/skeleton of unknown revision"
         fi
     fi
+    redis-cli del "$PROJECT_PATH_KEY" > /dev/null 2>&1
+    redis-cli del "$NEW_REF_KEY" > /dev/null 2>&1
     while test "$(git diff --check > /dev/null 2>&1)"
     do
         echo "Cannot commit with the following conflicts:"
@@ -148,9 +150,6 @@ main() {
     echo
     echo "Your repository is now up to date with this bswck/skeleton revision:"
     echo "https://github.com/bswck/skeleton/tree/${NEW_REF:-"HEAD"}"
-
-    redis-cli del "$PROJECT_PATH_KEY" > /dev/null 2>&1
-    redis-cli del "$NEW_REF_KEY" > /dev/null 2>&1
 }
 
 main "$@"
