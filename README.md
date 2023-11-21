@@ -78,7 +78,7 @@ If you use [Poetry](https://python-poetry.org/), then run:
 poetry add runtime-generics
 ```
 
-## …contribute to  🚀
+## …contribute to [{repo_name}}](https://github.com/bswck/runtime_generics) 🚀
 
 Happy to accept contributions!
 
