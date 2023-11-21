@@ -2,13 +2,13 @@
 # (C) 2023–present Bartosz Sławecki (bswck)
 #
 # Sync with bswck/skeleton.
-# This script was adopted from https://github.com/bswck/skeleton/tree/e40c13f/project/scripts/sync.sh.jinja
+# This script was adopted from https://github.com/bswck/skeleton/tree/f96ba74/project/scripts/sync.sh.jinja
 #
 # Usage:
 # $ poe sync
 
 
-# Automatically copied from https://github.com/bswck/skeleton/tree/e40c13f/handle-task-event.sh
+# Automatically copied from https://github.com/bswck/skeleton/tree/f96ba74/handle-task-event.sh
 
 toggle_workflows() {
     # Toggle workflows depending on the project's settings
@@ -97,7 +97,7 @@ after_update_algorithm() {
             local COMMIT_MSG="Upgrade to bswck/skeleton of unknown revision"
         fi
     fi
-    while test "$(git diff --check > /dev/null 2>&1)"
+    while test "$(git diff --check | grep "")"
     do
         echo "Cannot commit with the following conflicts:"
         git diff --check
@@ -117,7 +117,7 @@ after_update_algorithm() {
 }
 
 main() {
-    export LAST_REF="e40c13f"
+    export LAST_REF="f96ba74"
     export PROJECT_PATH_KEY="$$_skeleton_project_path"
     export NEW_REF_KEY="$$_skeleton_new_ref"
     export LAST_LICENSE_NAME="MIT"
