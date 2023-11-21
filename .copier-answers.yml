@@ -1,0 +1,19 @@
+_commit: eec6850
+_src_path: gh:bswck/skeleton
+add_description_to_readme: false
+author_full_name: Bartosz Sławecki
+email_address: bswck.dev@gmail.com
+github_username: bswck
+license_name: MIT
+main_branch: master
+package_name: runtime_generics
+project_description: Reuse type arguments explicitly passed at runtime to a generic
+    class before instantiating.
+project_version: 1.0.3
+publish_on_pypi: true
+pypi_project_description: Reuse type arguments explicitly passed at runtime to a generic
+    class before instantiating.
+pypi_project_name: runtime-generics
+python_version: '3.8'
+repo_name: runtime_generics
+visibility: public
