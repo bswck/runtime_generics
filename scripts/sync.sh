@@ -2,13 +2,13 @@
 # (C) 2023–present Bartosz Sławecki (bswck)
 #
 # Sync with bswck/skeleton.
-# This script was adopted from https://github.com/bswck/skeleton/tree/1f3cab2/project/scripts/sync.sh.jinja
+# This script was adopted from https://github.com/bswck/skeleton/tree/259a98e/project/scripts/sync.sh.jinja
 #
 # Usage:
 # $ poe sync
 
 
-# Automatically copied from https://github.com/bswck/skeleton/tree/1f3cab2/handle-task-event.sh
+# Automatically copied from https://github.com/bswck/skeleton/tree/259a98e/handle-task-event.sh
 
 toggle_workflows() {
     # Toggle workflows depending on the project's settings
@@ -24,11 +24,15 @@ determine_project_path() {
     PROJECT_PATH=$(redis-cli get "$PROJECT_PATH_KEY")
 }
 
+ensure_github_environment() {
+    # Ensure that the GitHub environment exists
+    jq -n '{"deployment_branch_policy": {"protected_branches": false, "custom_branch_policies": true}}'|gh api -H "Accept: application/vnd.github+json" -X PUT "/repos/bswck/runtime_generics/environments/$1" --input - | grep ''
+}
+
 supply_smokeshow_key() {
     # Supply smokeshow key to the repository
-    # This is not sufficient and will become a GitHub action:
-    # https://github.com/bswck/supply-smokeshow-key
     echo "Checking if smokeshow secret needs to be created..."
+    ensure_github_environment "Smokeshow"
     if test "$(gh secret list -e Smokeshow | grep -o SMOKESHOW_AUTH_KEY)"
     then
         echo "Smokeshow secret already exists, aborting." && return 0
@@ -54,7 +58,7 @@ determine_new_ref() {
 
 before_update_algorithm() {
     # Stash changes if any
-    if test "$(git diff --name-only | grep ".*")"
+    if test "$(git diff --name-only | grep "")"
     then
         echo "There are uncommitted changes in the project."
         git stash push --message "Stash before syncing with gh:bswck/skeleton"
@@ -93,6 +97,13 @@ after_update_algorithm() {
             local COMMIT_MSG="Upgrade to bswck/skeleton of unknown revision"
         fi
     fi
+    while test "$(git diff --check > /dev/null 2>&1)"
+    do
+        echo "Cannot commit with the following conflicts:"
+        git diff --check
+        echo "Please resolve the conflicts and press Enter to continue."
+        read -r
+    done
     git commit --no-verify -m "$COMMIT_MSG" -m "$REVISION_PARAGRAPH"
     git push --no-verify
     toggle_workflows
@@ -104,7 +115,7 @@ after_update_algorithm() {
 }
 
 main() {
-    export LAST_REF="1f3cab2"
+    export LAST_REF="259a98e"
     export PROJECT_PATH_KEY="$$_skeleton_project_path"
     export NEW_REF_KEY="$$_skeleton_new_ref"
     export LAST_LICENSE_NAME="MIT"

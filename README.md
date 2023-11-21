@@ -69,14 +69,12 @@ If you want to…
 
 ## …use this tool in your project 💻
 You might simply install it with pip:
-```bash
-pip install runtime-generics
-```
+
+    pip install runtime-generics
 
 If you use [Poetry](https://python-poetry.org/), then run:
-```bash
-poetry add runtime-generics
-```
+
+    poetry add runtime-generics
 
 ## …contribute to [runtime_generics](https://github.com/bswck/runtime_generics) 🚀
 
@@ -88,25 +86,23 @@ Happy to accept contributions!
 First, [install Poetry](https://python-poetry.org/docs/#installation).<br/>
 Poetry is an amazing tool for managing dependencies & virtual environments, building packages and publishing them.
 
-```bash
-pipx install poetry
-```
+    pipx install poetry
+
 <sub>If you encounter any problems, refer to [the official documentation](https://python-poetry.org/docs/#installation) for the most up-to-date installation instructions.</sub>
 
 Be sure to have Python 3.8 installed—if you use [pyenv](https://github.com/pyenv/pyenv#readme), simply run:
-```bash
-pyenv install 3.8
-```
+
+    pyenv install 3.8
 
 Then, run:
-```bash
-git clone https://github.com/bswck/runtime_generics path/to/runtime_generics
-cd path/to/runtime_generics
-poetry env use $(cat .python-version)
-poetry install
-poetry shell
-pre-commit install --hook-type pre-commit --hook-type pre-push
-```
+
+    git clone https://github.com/bswck/runtime_generics path/to/runtime_generics
+    cd path/to/runtime_generics
+    poetry env use $(cat .python-version)
+    poetry install
+    poetry shell
+    pre-commit install --hook-type pre-commit --hook-type pre-push
+
 
 # Legal info
 © Copyright by Bartosz Sławecki ([@bswck](https://github.com/bswck)).<br />This software is licensed under the [MIT License](https://github.com/bswck/runtime_generics/blob/main/LICENSE).
