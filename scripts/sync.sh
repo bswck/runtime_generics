@@ -2,13 +2,13 @@
 # (C) 2023–present Bartosz Sławecki (bswck)
 #
 # Sync with bswck/skeleton.
-# This script was adopted from https://github.com/bswck/skeleton/tree/051656a/project/scripts/sync.sh.jinja
+# This script was adopted from https://github.com/bswck/skeleton/tree/dd6dd40/project/scripts/sync.sh.jinja
 #
 # Usage:
 # $ poe sync
 
 
-# Automatically copied from https://github.com/bswck/skeleton/tree/051656a/handle-task-event.sh
+# Automatically copied from https://github.com/bswck/skeleton/tree/dd6dd40/handle-task-event.sh
 
 toggle_workflows() {
     # Toggle workflows depending on the project's settings
@@ -70,7 +70,7 @@ before_update_algorithm() {
 
 run_update_algorithm() {
     # Run the underlying update algorithm
-    copier update --trust --vcs-ref "${1:-"HEAD"}"
+    copier update --trust --vcs-ref "${1:-"HEAD"}" "${@:2}" || return 1
     determine_new_ref
     determine_project_path
 }
@@ -117,7 +117,7 @@ after_update_algorithm() {
 }
 
 main() {
-    export LAST_REF="051656a"
+    export LAST_REF="dd6dd40"
     export PROJECT_PATH_KEY="$$_skeleton_project_path"
     export NEW_REF_KEY="$$_skeleton_new_ref"
     export LAST_LICENSE_NAME="MIT"
@@ -128,13 +128,13 @@ main() {
     echo
     echo "UPDATE ROUTINE [1/3]: Running pre-update hooks."
     echo "[---------------------------------------------]"
-    before_update_algorithm
+    before_update_algorithm || exit 1
     echo "[---------------------------------------------]"
     echo "UPDATE ROUTINE [1/3] COMPLETE. ✅"
     echo
     echo "UPDATE ROUTINE [2/3]: Running the underlying update algorithm."
     echo "[------------------------------------------------------------]"
-    run_update_algorithm "$@"
+    run_update_algorithm "$@" || exit 1
     echo "[------------------------------------------------------------]"
     echo "UPDATE ROUTINE [2/3] COMPLETE. ✅"
     echo
