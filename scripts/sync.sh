@@ -2,13 +2,13 @@
 # (C) 2023–present Bartosz Sławecki (bswck)
 #
 # Sync with bswck/skeleton.
-# Script adopted from https://github.com/bswck/skeleton/tree/acfed6b/project/scripts/sync.sh.jinja
+# Script adopted from https://github.com/bswck/skeleton/tree/08bc096/project/scripts/sync.sh.jinja
 #
 # Usage:
 # $ poe sync
 
 
-# Automatically copied from https://github.com/bswck/skeleton/tree/acfed6b/handle-task-event.sh
+# Automatically copied from https://github.com/bswck/skeleton/tree/08bc096/handle-task-event.sh
 
 toggle_workflows() {
     # Toggle workflows depending on the project's settings
@@ -104,10 +104,10 @@ after_update_algorithm() {
 }
 
 main() {
-    export LAST_REF="acfed6b"
+    export LAST_REF="08bc096"
     export PROJECT_PATH_KEY="$$_skeleton_project_path"
     export NEW_REF_KEY="$$_skeleton_new_ref"
-    export LAST_LICENSE_NAME=""
+    export LAST_LICENSE_NAME="MIT"
 
     cd "${PROJECT_PATH:=$(git rev-parse --show-toplevel)}" || exit 1
     echo
