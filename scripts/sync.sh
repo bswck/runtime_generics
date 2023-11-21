@@ -2,13 +2,13 @@
 # (C) 2023–present Bartosz Sławecki (bswck)
 #
 # Sync with bswck/skeleton.
-# This script was adopted from https://github.com/bswck/skeleton/tree/504252b/project/scripts/sync.sh.jinja
+# This script was adopted from https://github.com/bswck/skeleton/tree/e40c13f/project/scripts/sync.sh.jinja
 #
 # Usage:
 # $ poe sync
 
 
-# Automatically copied from https://github.com/bswck/skeleton/tree/504252b/handle-task-event.sh
+# Automatically copied from https://github.com/bswck/skeleton/tree/e40c13f/handle-task-event.sh
 
 toggle_workflows() {
     # Toggle workflows depending on the project's settings
@@ -104,6 +104,8 @@ after_update_algorithm() {
         echo "Please resolve the conflicts and press Enter to continue."
         read -r
     done
+    redis-cli del "$PROJECT_PATH_KEY" > /dev/null 2>&1
+    redis-cli del "$NEW_REF_KEY" > /dev/null 2>&1
     git commit --no-verify -m "$COMMIT_MSG" -m "$REVISION_PARAGRAPH"
     git push --no-verify
     toggle_workflows
@@ -115,7 +117,7 @@ after_update_algorithm() {
 }
 
 main() {
-    export LAST_REF="504252b"
+    export LAST_REF="e40c13f"
     export PROJECT_PATH_KEY="$$_skeleton_project_path"
     export NEW_REF_KEY="$$_skeleton_new_ref"
     export LAST_LICENSE_NAME="MIT"
@@ -148,9 +150,6 @@ main() {
     echo
     echo "Your repository is now up to date with this bswck/skeleton revision:"
     echo "https://github.com/bswck/skeleton/tree/${NEW_REF:-"HEAD"}"
-
-    redis-cli del "$PROJECT_PATH_KEY" > /dev/null 2>&1
-    redis-cli del "$NEW_REF_KEY" > /dev/null 2>&1
 }
 
 main "$@"

@@ -1,6 +1,10 @@
 [tool.poetry]
 name = "runtime_generics"
+<<<<<<< before updating
 version = "1.0.3"
+=======
+version = "0.0.1"
+>>>>>>> after updating
 description = "Reuse type arguments explicitly passed at runtime to a generic class before instantiating."
 authors = ["bswck <bswck.dev@gmail.com>"]
 license = "MIT"
