@@ -100,12 +100,12 @@ pyenv install 3.8
 
 Then, run:
 ```bash
-git clone https://github.com/bswck/runtime_generics
-cd runtime_generics
-poetry install
-pre-commit install --hook-type pre-commit --hook-type pre-push
+git clone https://github.com/bswck/runtime_generics path/to/runtime_generics
+cd path/to/runtime_generics
 poetry env use $(cat .python-version)
+poetry install
 poetry shell
+pre-commit install --hook-type pre-commit --hook-type pre-push
 ```
 
 # Legal info
