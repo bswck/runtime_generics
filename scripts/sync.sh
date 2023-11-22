@@ -2,7 +2,7 @@
 # (C) 2023–present Bartosz Sławecki (bswck)
 #
 # Sync with bswck/skeleton.
-# This script was adopted from https://github.com/bswck/skeleton/tree/fac0d7a/project/scripts/sync.sh.jinja
+# This script was adopted from https://github.com/bswck/skeleton/tree/02153fe/project/scripts/sync.sh.jinja
 #
 # Usage:
 # $ poe sync
@@ -10,7 +10,7 @@
 # shellcheck disable=SC2005
 
 
-# Automatically copied from https://github.com/bswck/skeleton/tree/fac0d7a/handle-task-event.sh
+# Automatically copied from https://github.com/bswck/skeleton/tree/02153fe/handle-task-event.sh
 
 toggle_workflows() {
     # Toggle workflows depending on the project's settings
@@ -28,7 +28,7 @@ determine_project_path() {
 
 ensure_github_environment() {
     # Ensure that the GitHub environment exists
-    jq -n '{"deployment_branch_policy": {"protected_branches": false, "custom_branch_policies": true}}'|gh api -H "Accept: application/vnd.github+json" -X PUT "/repos/bswck/runtime_generics/environments/$1" --input -
+    echo "$(jq -n '{"deployment_branch_policy": {"protected_branches": false, "custom_branch_policies": true}}'|gh api -H "Accept: application/vnd.github+json" -X PUT "/repos/bswck/runtime_generics/environments/$1" --input -)" > /dev/null 2>&1 || return 1
 }
 
 supply_smokeshow_key() {
@@ -99,7 +99,7 @@ after_update_algorithm() {
             local COMMIT_MSG="Upgrade to bswck/skeleton of unknown revision"
         fi
     fi
-    while test echo "$(git diff --check)"
+    while test "$(echo "$(git diff --check)")"
     do
         echo "Cannot commit with the following conflicts:"
         echo "$(git diff --check)"
@@ -119,7 +119,7 @@ after_update_algorithm() {
 }
 
 main() {
-    export LAST_REF="fac0d7a"
+    export LAST_REF="02153fe"
     export PROJECT_PATH_KEY="$$_skeleton_project_path"
     export NEW_REF_KEY="$$_skeleton_new_ref"
     export LAST_LICENSE_NAME="MIT"
