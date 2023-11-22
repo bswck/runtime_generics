@@ -2,7 +2,7 @@
 # (C) 2023–present Bartosz Sławecki (bswck)
 #
 # Sync with bswck/skeleton.
-# This script was adopted from https://github.com/bswck/skeleton/tree/02153fe/project/scripts/sync.sh.jinja
+# This script was adopted from https://github.com/bswck/skeleton/tree/623070d/project/scripts/sync.sh.jinja
 #
 # Usage:
 # $ poe sync
@@ -10,7 +10,7 @@
 # shellcheck disable=SC2005
 
 
-# Automatically copied from https://github.com/bswck/skeleton/tree/02153fe/handle-task-event.sh
+# Automatically copied from https://github.com/bswck/skeleton/tree/623070d/handle-task-event.sh
 
 toggle_workflows() {
     # Toggle workflows depending on the project's settings
@@ -60,7 +60,7 @@ determine_new_ref() {
 
 before_update_algorithm() {
     # Stash changes if any
-    if test "echo $(git diff --name-only)"
+    if test "$(echo "$(git diff --name-only)")"
     then
         echo "There are uncommitted changes in the project."
         git stash push --message "Stash before syncing with gh:bswck/skeleton"
@@ -119,7 +119,7 @@ after_update_algorithm() {
 }
 
 main() {
-    export LAST_REF="02153fe"
+    export LAST_REF="623070d"
     export PROJECT_PATH_KEY="$$_skeleton_project_path"
     export NEW_REF_KEY="$$_skeleton_new_ref"
     export LAST_LICENSE_NAME="MIT"
