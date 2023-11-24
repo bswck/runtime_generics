@@ -2,7 +2,7 @@
 # (C) 2023–present Bartosz Sławecki (bswck)
 #
 # Sync with bswck/skeleton.
-# This script was adopted from https://github.com/bswck/skeleton/tree/7fee354/project/scripts/sync.sh.jinja
+# This script was adopted from https://github.com/bswck/skeleton/tree/678468f/project/scripts/sync.sh.jinja
 #
 # Usage:
 # $ poe sync
@@ -10,14 +10,12 @@
 # shellcheck disable=SC2005
 
 
-# Automatically copied from https://github.com/bswck/skeleton/tree/7fee354/handle-task-event.sh
+# Automatically copied from https://github.com/bswck/skeleton/tree/678468f/handle-task-event.sh
 
 toggle_workflows() {
     # Toggle workflows depending on the project's settings
     echo "Toggling workflows..."
     supply_smokeshow_key
-    gh workflow enable smokeshow.yml
-    gh workflow enable release.yml
 }
 
 determine_project_path() {
@@ -28,7 +26,7 @@ determine_project_path() {
 
 ensure_github_environment() {
     # Ensure that the GitHub environment exists
-    echo "$(jq -n '{"deployment_branch_policy": {"protected_branches": false, "custom_branch_policies": true}}'|gh api -H "Accept: application/vnd.github+json" -X PUT "/repos/bswck/runtime_generics/environments/$1" --input -)" > /dev/null 2>&1 || return 1
+    echo "$(jq -n '{"deployment_branch_policy": {"protected_branches": false, "custom_branch_policies": true}}' | gh api -H "Accept: application/vnd.github+json" -X PUT "/repos/bswck/runtime_generics/environments/$1" --input -)" > /dev/null 2>&1 || return 1
 }
 
 supply_smokeshow_key() {
@@ -119,7 +117,7 @@ after_update_algorithm() {
 }
 
 main() {
-    export LAST_REF="7fee354"
+    export LAST_REF="678468f"
     export PROJECT_PATH_KEY="$$_skeleton_project_path"
     export NEW_REF_KEY="$$_skeleton_new_ref"
     export LAST_LICENSE_NAME="MIT"
