@@ -62,8 +62,6 @@ def test_get_arguments() -> None:
     assert get_arguments(SingleArgGeneric[complex]()) == (complex,)
     assert get_arguments(TwoArgGeneric[int, str]()) == (int, str)
     assert get_arguments(TwoArgGeneric[int, bytearray](), Select[T2]) == (bytearray,)  # type: ignore[valid-type]
-    assert get_arguments(TwoArgGeneric[float, int](), "Select[T]") == (float,)
-    assert get_arguments(TwoArgGeneric[str, float](), Select["T2"]) == (float,)  # type: ignore[valid-type]
     assert get_arguments(
         VariadicGeneric[str, float, bytearray, bytes](), Index[1:3]
     ) == (
@@ -71,9 +69,6 @@ def test_get_arguments() -> None:
         bytearray,
         bytes,
     )  # right inclusive
-    assert get_arguments(
-        VariadicGeneric[int, bytearray, bytes, complex](), "Select[T]"
-    ) == (int,)
 
 
 def test_dunder_args_two() -> None:
@@ -107,3 +102,12 @@ def test_index() -> None:
         index["?"](TwoArgGeneric[int, str]())
     with raises(TypeError):
         index[None](TwoArgGeneric[int, str]())
+
+def test_classmethod_transform() -> None:
+    @runtime_generic
+    class C(Generic[T]):
+        @classmethod
+        def foo(cls) -> type[C[T]]:
+            return cls
+
+    assert C[int].foo() == C[int]

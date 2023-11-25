@@ -56,10 +56,9 @@ I am MyGeneric[int]
 
 from __future__ import annotations
 
-import inspect
 from itertools import chain
-from typing import TYPE_CHECKING, Any, ForwardRef, Generic, Protocol, TypeVar, cast
-from typing import _eval_type as _typing_eval_type  # type: ignore[attr-defined]
+from types import MethodType
+from typing import TYPE_CHECKING, Any, ForwardRef, Generic, Protocol, TypeVar
 from typing import _GenericAlias as _typing_GenericAlias  # type: ignore[attr-defined]
 from typing import get_args as _typing_get_args
 
@@ -119,6 +118,20 @@ def _try_forward_ref(obj: str) -> str | ForwardRef:
         return obj
 
 
+class _ClassMethodProxy:
+    def __init__(
+        self,
+        alias_proxy: _AliasProxy,
+        cls_method: classmethod[Any, Any, Any],
+    ) -> None:
+        self.alias_proxy = alias_proxy
+        self.cls_method = cls_method
+        self.__func__ = self.cls_method.__func__
+
+    def __get__(self, instance: object, owner: type[Any] | None = None) -> MethodType:
+        return MethodType(self.cls_method.__func__, self.alias_proxy)
+
+
 class _AliasProxy(
     _typing_GenericAlias,  # type: ignore[misc,call-arg]
     _root=True,
@@ -134,6 +147,14 @@ class _AliasProxy(
             for param in (params if isinstance(params, tuple) else (params,))
         )
         super().__init__(origin, patched_params, **kwds)
+        cls_dict = vars(origin)
+        for cls_method_name, cls_method in cls_dict.items():
+            if isinstance(cls_method, classmethod):
+                setattr(
+                    origin,
+                    cls_method_name,
+                    _ClassMethodProxy(self, cls_method),
+                )
 
     def __get_arguments__(
         self,
@@ -145,9 +166,6 @@ class _AliasProxy(
             _origin or self.__origin__,
             "__get_arguments__",
         )
-        if not isinstance(method, classmethod):  # pragma: no cover
-            msg = f"Expected {method} to be a classmethod, got {type(method)}"
-            raise TypeError(msg)
         return method.__func__(self, instance)
 
     # @override?
@@ -238,15 +256,6 @@ def get_all_arguments(instance: object) -> tuple[Any, ...]:
 get_all_args = get_all_arguments
 
 
-class _SelectorProtocol(Protocol):
-    @classmethod
-    def __get_arguments__(
-        cls,
-        instance: GenericClass,
-    ) -> tuple[Any, ...]:  # pragma: no cover
-        ...
-
-
 class FunctionalSelectorMixin:
     """
     Mixin for functional selectors.
@@ -263,7 +272,7 @@ class Select(Generic[Unpack[GenericArguments]]):
     def __get_arguments__(
         cls,
         instance: GenericClass,
-    ) -> Any:
+    ) -> tuple[Any, ...]:
         """Return the selected type arguments."""
         arguments = get_all_arguments(instance)
         tvars = _typing_get_args(cls)
@@ -368,39 +377,12 @@ class _FunctionalIndex(
 index: Any = _FunctionalIndex
 
 
-def _eval_generic_type(
-    obj: object,
-    *,
-    local_ns: dict[str, object] | None = None,
-    global_ns: dict[str, object] | None = None,
-    stack_offset: int = 1,
-) -> _SelectorProtocol:
-    if local_ns is None or global_ns is None:
-        frame = inspect.stack()[stack_offset].frame
-        global_ns = global_ns or frame.f_globals or {}
-        local_ns = local_ns or frame.f_locals or {}
-    return cast(
-        _SelectorProtocol,
-        _typing_eval_type(
-            _try_forward_ref(obj) if isinstance(obj, str) else obj,
-            globalns=global_ns,
-            localns=local_ns,
-        ),
-    )
-
-
 def get_arguments(
     instance: object,
     argument_type: type[
         Select[Unpack[GenericArguments]] | Index[Unpack[GenericArguments]]
     ]
-    | str
-    | ForwardRef
     | None = None,
-    *,
-    local_ns: dict[str, object] | None = None,
-    global_ns: dict[str, object] | None = None,
-    stack_offset: int = 1,
 ) -> tuple[Any, ...]:
     """
     Get the single type argument of a runtime generic instance.
@@ -449,13 +431,7 @@ def get_arguments(
     if argument_type is None:
         return arguments
 
-    impl = _eval_generic_type(
-        argument_type,
-        global_ns=global_ns,
-        local_ns=local_ns,
-        stack_offset=stack_offset + 1,
-    )
-    return impl.__get_arguments__(instance)
+    return argument_type.__get_arguments__(instance)
 
 
 get_args = get_arguments
