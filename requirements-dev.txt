@@ -81,15 +81,15 @@ h11==0.14.0 ; python_version >= "3.8" and python_version < "4.0" \
 httpcore==1.0.2 ; python_version >= "3.8" and python_version < "4.0" \
     --hash=sha256:096cc05bca73b8e459a1fc3dcf585148f63e534eae4339559c9b8a8d6399acc7 \
     --hash=sha256:9fc092e4799b26174648e54b74ed5f683132a464e95643b226e00c2ed2fa6535
-httpx==0.25.1 ; python_version >= "3.8" and python_version < "4.0" \
-    --hash=sha256:fec7d6cc5c27c578a391f7e87b9aa7d3d8fbcd034f6399f9f79b45bcc12a866a \
-    --hash=sha256:ffd96d5cf901e63863d9f1b4b6807861dbea4d301613415d9e6e57ead15fc5d0
+httpx==0.25.2 ; python_version >= "3.8" and python_version < "4.0" \
+    --hash=sha256:8b8fcaa0c8ea7b05edd69a094e63a2094c4efcb48129fb757361bc423c0ad9e8 \
+    --hash=sha256:a05d3d052d9b2dfce0e3896636467f8a5342fb2b902c819428e1ac65413ca118
 identify==2.5.32 ; python_version >= "3.8" and python_version < "4.0" \
     --hash=sha256:0b7656ef6cba81664b783352c73f8c24b39cf82f926f78f4550eda928e5e0545 \
     --hash=sha256:5d9979348ec1a21c768ae07e0a652924538e8bce67313a73cb0f681cf08ba407
-idna==3.4 ; python_version >= "3.8" and python_version < "4.0" \
-    --hash=sha256:814f528e8dead7d329833b91c5faa87d60bf71824cd12a7530b5526063d02cb4 \
-    --hash=sha256:90b77e79eaa3eba6de819a0c442c0b4ceefc341a7a2ab77d7562bf49f425c5c2
+idna==3.5 ; python_version >= "3.8" and python_version < "4.0" \
+    --hash=sha256:27009fe2735bf8723353582d48575b23c533cc2c2de7b5a68908d91b5eb18d08 \
+    --hash=sha256:79b8f0ac92d2351be5f6122356c9a592c96d81c9a79e4b488bf2a6a15f88057a
 iniconfig==2.0.0 ; python_version >= "3.8" and python_version < "4.0" \
     --hash=sha256:2d91e135bf72d31a410b17c16da610a82cb55f6b0477d1a902134b24a455b8b3 \
     --hash=sha256:b6a85871a79d2e3b22d2d1b94ac2824226a63c6b741c88f7ae975f18b6778374
