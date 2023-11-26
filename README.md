@@ -68,43 +68,56 @@ my_generic.whoami()  # I am MyGeneric[int]
 If you want to…
 
 
+
 ## …use this tool in your project 💻
 You might simply install it with pip:
 
-    pip install runtime-generics
+```shell
+pip install runtime-generics
+```
 
 If you use [Poetry](https://python-poetry.org/), then run:
 
-    poetry add runtime-generics
+```shell
+poetry add runtime-generics
+```
 
 ## …contribute to [runtime_generics](https://github.com/bswck/runtime_generics) 🚀
-
-Happy to accept contributions!
 
 > [!Note]
 > If you use Windows, it is highly recommended to complete the installation in the way presented below through [WSL2](https://learn.microsoft.com/en-us/windows/wsl/install).
 
-First, [install Poetry](https://python-poetry.org/docs/#installation).<br/>
-Poetry is an amazing tool for managing dependencies & virtual environments, building packages and publishing them.
+1.  Fork the [runtime_generics repository](https://github.com/bswck/runtime_generics) on GitHub.
 
+2.  [Install Poetry](https://python-poetry.org/docs/#installation).<br/>
+    Poetry is an amazing tool for managing dependencies & virtual environments, building packages and publishing them.
+
+    ```shell
     pipx install poetry
+    ```
 
-<sub>If you encounter any problems, refer to [the official documentation](https://python-poetry.org/docs/#installation) for the most up-to-date installation instructions.</sub>
+    <sub>If you encounter any problems, refer to [the official documentation](https://python-poetry.org/docs/#installation) for the most up-to-date installation instructions.</sub>
 
-Be sure to have Python 3.8 installed—if you use [pyenv](https://github.com/pyenv/pyenv#readme), simply run:
+    Be sure to have Python 3.8 installed—if you use [pyenv](https://github.com/pyenv/pyenv#readme), simply run:
 
+    ```shell
     pyenv install 3.8
+    ```
 
-Then, run:
+3.  Clone your fork locally and install dependencies.
 
-    git clone https://github.com/bswck/runtime_generics path/to/runtime_generics
+    ```shell
+    git clone https://github.com/your-username/runtime_generics path/to/runtime_generics
     cd path/to/runtime_generics
     poetry env use $(cat .python-version)
     poetry install
     poetry shell
     pre-commit install --hook-type pre-commit --hook-type pre-push
+    ```
 
+For more information on how to contribute, check out [CONTRIBUTING.md](https://github.com/bswck/runtime_generics/blob/HEAD/CONTRIBUTING.md).<br/>
+Always happy to accept contributions! ❤️
 
 # Legal info
-© Copyright by Bartosz Sławecki ([@bswck](https://github.com/bswck)).<br />This software is licensed under the [MIT License](https://github.com/bswck/runtime_generics/blob/main/LICENSE).
+© Copyright by Bartosz Sławecki ([@bswck](https://github.com/bswck)).<br />This software is licensed under the [MIT License](https://github.com/bswck/runtime_generics/blob/HEAD/LICENSE).
 
