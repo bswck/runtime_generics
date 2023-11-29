@@ -16,5 +16,5 @@ pypi_project_name: runtime-generics
 python_version: '3.8'
 repo_name: runtime_generics
 test_suite: true
-use_precommit: true
+use_precommit: false
 visibility: public
