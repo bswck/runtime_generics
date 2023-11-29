@@ -116,7 +116,7 @@ after_update_algorithm() {
     echo "Press ENTER to commit the changes or CTRL+C to abort."
     read -r || exit 1
     
-    poetry run pre-commit uninstall
+    poetry run pre-commit install --hook-type pre-commit --hook-type pre-push
     
     git commit --no-verify -m "$COMMIT_MSG" -m "$REVISION_PARAGRAPH"
     git push --no-verify
