@@ -67,6 +67,8 @@ from typing_extensions import TypeVarTuple, Unpack, deprecated
 if TYPE_CHECKING:
     from collections.abc import Callable
 
+    from typing_extensions import TypeGuard
+
 
 __all__ = (
     "runtime_generic",
@@ -76,6 +78,7 @@ __all__ = (
     "get_arguments",
     "get_all_args",
     "get_all_arguments",
+    "generic_isinstance",
     "FunctionalSelectorMixin",
     "Select",
     "Index",
@@ -97,7 +100,7 @@ class _GenericProtocol(
     def __class_getitem__(
         cls,
         item: tuple[type[Any], ...],
-    ) -> Callable[..., Any]:  # pragma: no cover
+    ) -> Any:  # pragma: no cover
         ...
 
 
@@ -188,12 +191,26 @@ class _AliasProxy(
         return instance
 
 
+def generic_isinstance(obj: object, cls: type[GenericClass]) -> TypeGuard[GenericClass]:
+    """Perform an`isinstance()` check on a runtime generic."""
+    # Not defining __instancecheck__ is intentional.
+    if isinstance(cls, _typing_GenericAlias):
+        return (
+            isinstance(obj, cls.__origin__) and get_all_arguments(obj) == cls.__args__
+        )
+    return isinstance(obj, cls)
+
+
+# TODO(bswck): generic_issubclass()
+# https://github.com/bswck/runtime_generics/issues/5
+
+
 class _RuntimeGenericDescriptor:  # pylint: disable=too-few-public-methods
     def __get__(
         self,
         instance: object,
         owner: type[Any] | None = None,
-    ) -> Callable[..., Any]:
+    ) -> Callable[..., _AliasProxy]:
         cls = owner
         if cls is None:  # pragma: no cover
             # Probably redundant, but we support this case anyway

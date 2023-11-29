@@ -9,6 +9,7 @@ from typing_extensions import TypeVarTuple, Unpack
 from runtime_generics import (
     Index,
     Select,
+    generic_isinstance,
     get_all_args,
     get_all_arguments,
     get_arg,
@@ -111,3 +112,13 @@ def test_classmethod_transform() -> None:
             return cls
 
     assert C[int].foo() == C[int]
+
+
+def test_generic_isinstance() -> None:
+    @runtime_generic
+    class C(Generic[T]):
+        pass
+
+    assert generic_isinstance(C[int](), C[int])
+    assert not generic_isinstance(C[int](), C[str])
+    assert generic_isinstance(C[int](), C)
