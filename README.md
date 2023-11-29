@@ -1,4 +1,4 @@
-# runtime_generics [![Package version](https://img.shields.io/pypi/v/runtime-generics?label=PyPI)](https://pypi.org/project/runtime-generics) [![Supported Python versions](https://img.shields.io/pypi/pyversions/runtime-generics.svg?logo=python&label=Python)](https://pypi.org/project/runtime-generics)
+# runtime_generics [![Package version](https://img.shields.io/pypi/v/runtime-generics?label=PyPI)](https://pypi.org/project/runtime-generics/) [![Supported Python versions](https://img.shields.io/pypi/pyversions/runtime-generics.svg?logo=python&label=Python)](https://pypi.org/project/runtime-generics/)
 [![Tests](https://github.com/bswck/runtime_generics/actions/workflows/test.yml/badge.svg)](https://github.com/bswck/runtime_generics/actions/workflows/test.yml)
 [![Coverage](https://coverage-badge.samuelcolvin.workers.dev/bswck/runtime_generics.svg)](https://coverage-badge.samuelcolvin.workers.dev/redirect/bswck/runtime_generics)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
@@ -86,10 +86,9 @@ poetry add runtime-generics
 
 > [!Note]
 > If you use Windows, it is highly recommended to complete the installation in the way presented below through [WSL2](https://learn.microsoft.com/en-us/windows/wsl/install).
-
 1.  Fork the [runtime_generics repository](https://github.com/bswck/runtime_generics) on GitHub.
 
-2.  [Install Poetry](https://python-poetry.org/docs/#installation).<br/>
+1.  [Install Poetry](https://python-poetry.org/docs/#installation).<br/>
     Poetry is an amazing tool for managing dependencies & virtual environments, building packages and publishing them.
 
     ```shell
@@ -103,8 +102,7 @@ poetry add runtime-generics
     ```shell
     pyenv install 3.8
     ```
-
-3.  Clone your fork locally and install dependencies.
+1.  Clone your fork locally and install dependencies.
 
     ```shell
     git clone https://github.com/your-username/runtime_generics path/to/runtime_generics
@@ -114,10 +112,10 @@ poetry add runtime-generics
     poetry shell
     pre-commit install --hook-type pre-commit --hook-type pre-push
     ```
-
 For more information on how to contribute, check out [CONTRIBUTING.md](https://github.com/bswck/runtime_generics/blob/HEAD/CONTRIBUTING.md).<br/>
 Always happy to accept contributions! ❤️
 
-# Legal info
-© Copyright by Bartosz Sławecki ([@bswck](https://github.com/bswck)).<br />This software is licensed under the [MIT License](https://github.com/bswck/runtime_generics/blob/HEAD/LICENSE).
 
+# Legal info
+© Copyright by Bartosz Sławecki ([@bswck](https://github.com/bswck)).
+<br />This software is licensed under the terms of [MIT License](https://github.com/bswck/runtime_generics/blob/HEAD/LICENSE).

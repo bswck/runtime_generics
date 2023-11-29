@@ -1,6 +1,6 @@
 site_name: "runtime_generics"
 site_description: "Reuse type arguments explicitly passed at runtime to a generic class before instantiating."
-site_url: "https://runtime_generics.readthedocs.io/"
+site_url: "https://runtime-generics.readthedocs.io/en/latest/"
 repo_url: "https://github.com/bswck/runtime_generics"
 repo_name: "bswck/runtime_generics"
 watch:

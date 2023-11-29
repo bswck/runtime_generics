@@ -9,10 +9,10 @@ packages = [{ include = "runtime_generics/" }]
 homepage = "https://github.com/bswck/runtime_generics"
 
 [tool.poetry.urls]
-Documentation = "https://runtime_generics.readthedocs.io/"
+Documentation = "https://runtime-generics.readthedocs.io/en/latest/"
 Issues = "https://github.com/bswck/runtime_generics/issues"
 Coverage = "https://coverage-badge.samuelcolvin.workers.dev/redirect/bswck/runtime_generics"
-Distribution = "https://pypi.org/project/runtime-generics"
+Distribution = "https://pypi.org/project/runtime-generics/"
 
 [tool.poetry.dependencies]
 python = "^3.8"
@@ -26,7 +26,6 @@ coverage = "^7.3.2"
 poethepoet = "^0.24.3"
 pre-commit = "^3.5.0"
 smokeshow = "^0.4.0"
-
 [tool.poetry.group.docs]
 optional = true
 

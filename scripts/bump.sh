@@ -2,7 +2,7 @@
 # (C) 2023–present Bartosz Sławecki (bswck)
 #
 # Sync with bswck/skeleton.
-# This script was adopted from https://github.com/bswck/skeleton/tree/8f1cc90/project/scripts/sync.sh.jinja
+# This script was adopted from https://github.com/bswck/skeleton/tree/ff1fb11/project/scripts/sync.sh.jinja
 #
 # Usage:
 # $ poe bump
@@ -10,7 +10,22 @@
 # shellcheck disable=SC2005
 
 
-# Automatically copied from https://github.com/bswck/skeleton/tree/8f1cc90/handle-task-event.sh
+# Automatically copied from https://github.com/bswck/skeleton/tree/ff1fb11/handle-task-event.sh
+make_token() {
+    export TOKEN
+    TOKEN="$(echo "$(date +%s%N)" | sha256sum | head -c "${1:-10}")"
+}
+
+stash() {
+    make_token 32
+    export STASH_TOKEN="$TOKEN"
+    git stash push -m "$STASH_TOKEN"
+}
+
+unstash() {
+    STASH_ID="$("$(git stash list)" | grep "${1:-STASH_TOKEN}" | grep -oP "^stash@{\K(\d)+")"
+    git stash pop "stash@{$STASH_ID}"
+}
 
 toggle_workflows() {
     # Toggle workflows depending on the project's settings
@@ -61,8 +76,7 @@ before_update_algorithm() {
     if test "$(echo "$(git diff --name-only)")"
     then
         echo "There are uncommitted changes in the project."
-        git stash push --message "Stash before syncing with gh:bswck/skeleton"
-        DID_STASH=1
+        stash
     else
         echo "Working tree clean, no need to stash."
     fi
@@ -102,20 +116,20 @@ after_update_algorithm() {
     echo "Press ENTER to commit the changes or CTRL+C to abort."
     read -r || exit 1
     
-    poetry run pre-commit uninstall
+    poetry run pre-commit install --hook-type pre-commit --hook-type pre-push
     
     git commit --no-verify -m "$COMMIT_MSG" -m "$REVISION_PARAGRAPH"
     git push --no-verify
     toggle_workflows
-    if test "$DID_STASH"
+    if test "$STASH_TOKEN"
     then
         echo "Unstashing changes..."
-        git stash pop && echo "Done!"
+        unstash && echo "Done!"
     fi
 }
 
 main() {
-    export LAST_REF="8f1cc90"
+    export LAST_REF="ff1fb11"
     export PROJECT_PATH_KEY="$$_skeleton_project_path"
     export NEW_REF_KEY="$$_skeleton_new_ref"
     export LAST_LICENSE_NAME="MIT"
