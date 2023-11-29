@@ -2,7 +2,7 @@
 # (C) 2023–present Bartosz Sławecki (bswck)
 #
 # Sync with bswck/skeleton.
-# This script was adopted from https://github.com/bswck/skeleton/tree/ff1fb11/project/scripts/sync.sh.jinja
+# This script was adopted from https://github.com/bswck/skeleton/tree/b7a1627/project/scripts/sync.sh.jinja
 #
 # Usage:
 # $ poe bump
@@ -10,7 +10,7 @@
 # shellcheck disable=SC2005
 
 
-# Automatically copied from https://github.com/bswck/skeleton/tree/ff1fb11/handle-task-event.sh
+# Automatically copied from https://github.com/bswck/skeleton/tree/b7a1627/handle-task-event.sh
 make_token() {
     export TOKEN
     TOKEN="$(echo "$(date +%s%N)" | sha256sum | head -c "${1:-10}")"
@@ -27,9 +27,8 @@ unstash() {
     git stash pop "stash@{$STASH_ID}"
 }
 
-toggle_workflows() {
-    # Toggle workflows depending on the project's settings
-    echo "Toggling workflows..."
+setup_gh() {
+    echo "Calling GitHub setup hooks..."
     supply_smokeshow_key
 }
 
@@ -39,7 +38,7 @@ determine_project_path() {
     PROJECT_PATH=$(redis-cli get "$PROJECT_PATH_KEY")
 }
 
-ensure_github_environment() {
+ensure_gh_environment() {
     # Ensure that the GitHub environment exists
     echo "$(jq -n '{"deployment_branch_policy": {"protected_branches": false, "custom_branch_policies": true}}' | gh api -H "Accept: application/vnd.github+json" -X PUT "/repos/bswck/runtime_generics/environments/$1" --input -)" > /dev/null 2>&1 || return 1
 }
@@ -47,7 +46,7 @@ ensure_github_environment() {
 supply_smokeshow_key() {
     # Supply smokeshow key to the repository
     echo "Checking if smokeshow secret needs to be created..."
-    ensure_github_environment "Smokeshow" || echo "Failed to create smokeshow environment." 1>&2 && return 1
+    ensure_gh_environment "Smokeshow" || echo "Failed to create smokeshow environment." 1>&2 && return 1
     if test "$(gh secret list -e Smokeshow | grep -o SMOKESHOW_AUTH_KEY)"
     then
         echo "Smokeshow secret already exists, aborting." && return 0
@@ -115,12 +114,9 @@ after_update_algorithm() {
     redis-cli del "$NEW_REF_KEY" > /dev/null 2>&1
     echo "Press ENTER to commit the changes or CTRL+C to abort."
     read -r || exit 1
-    
-    poetry run pre-commit install --hook-type pre-commit --hook-type pre-push
-    
     git commit --no-verify -m "$COMMIT_MSG" -m "$REVISION_PARAGRAPH"
     git push --no-verify
-    toggle_workflows
+    setup_gh
     if test "$STASH_TOKEN"
     then
         echo "Unstashing changes..."
@@ -129,7 +125,7 @@ after_update_algorithm() {
 }
 
 main() {
-    export LAST_REF="ff1fb11"
+    export LAST_REF="b7a1627"
     export PROJECT_PATH_KEY="$$_skeleton_project_path"
     export NEW_REF_KEY="$$_skeleton_new_ref"
     export LAST_LICENSE_NAME="MIT"
