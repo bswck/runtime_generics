@@ -11,22 +11,23 @@ Highly into type-safe Python code?
 _runtime_generics_ is a niche Python library that allows you to reuse type arguments explicitly passed at runtime
 to generic classes before instantiation.
 The library does two things:
-- makes it possible to retrieve the type argument passed to the generic class at runtime
+- makes it possible to retrieve the type arguments passed to the generic class at runtime
   before the class was instantiated;
+- supports basic instance/subclass checking of runtime generic classes.
 - given a parametrized generic class (generic alias),
   it makes every class method use generic alias `cls` instead of the origin class.
 
 # Simple example
 3.12+ ([PEP 695](https://peps.python.org/pep-0695) syntax):
 ```python
-from runtime_generics import runtime_generic, select
+from runtime_generics import get_type_arguments, runtime_generic
 
 @runtime_generic
 class MyGeneric[T]:
     type_argument: type[T]
 
     def __init__(self) -> None:
-        self.type_argument = select[T](self)
+        (self.type_argument,) = get_type_arguments(self)
 
     @classmethod
     def whoami(cls):
@@ -44,7 +45,7 @@ my_generic.whoami()  # I am MyGeneric[int]
 from __future__ import annotations
 
 from typing import Generic, TypeVar
-from runtime_generics import runtime_generic, select
+from runtime_generics import get_type_arguments, runtime_generic
 
 T = TypeVar("T")
 
@@ -53,7 +54,7 @@ class MyGeneric(Generic[T]):
     type_argument: type[T]
 
     def __init__(self) -> None:
-        self.type_argument = select[T](self)
+        (self.type_argument,) = get_type_arguments(self)
 
     @classmethod
     def whoami(cls):
