@@ -62,7 +62,7 @@ from typing_extensions import TypeVarTuple
 if TYPE_CHECKING:
     from collections.abc import Callable
 
-    from typing_extensions import ParamSpec, Self, TypeGuard
+    from typing_extensions import ParamSpec, Self
 
     P = ParamSpec("P")
     R = TypeVar("R")
@@ -81,6 +81,7 @@ except ImportError:  # pragma: no cover
 
 __all__ = (
     "get_type_arguments",
+    "generic_isinstance",
     "generic_isinstance",
     "no_alias",
     "runtime_generic",
@@ -291,7 +292,7 @@ def no_alias(cls_method: Callable[P, R]) -> Callable[P, R]:
     return cls_method
 
 
-def generic_isinstance(obj: object, cls: type[GenericClass]) -> TypeGuard[GenericClass]:
+def generic_isinstance(obj: object, cls: Any) -> bool:
     """
     Perform an `isinstance()` check on a runtime generic.
 
@@ -306,10 +307,7 @@ def generic_isinstance(obj: object, cls: type[GenericClass]) -> TypeGuard[Generi
     return generic_issubclass(obj.__class__, cls)
 
 
-def generic_issubclass(
-    cls_obj: Any,
-    cls: type[GenericClass],
-) -> TypeGuard[GenericClass]:
+def generic_issubclass(cls_obj: Any, cls: Any) -> bool:
     """
     Perform an `issubclass()` check on a runtime generic.
 
