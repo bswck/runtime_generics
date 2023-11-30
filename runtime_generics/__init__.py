@@ -190,13 +190,9 @@ class _AliasProxy(
         owner: type[object] | None = None,
     ) -> _AliasProxy:
         """Create a copy of the alias proxy with a new owner or new type arguments."""
-        if owner is None:
-            owner = self.__origin__
-        if not params:
-            params = self.__args__
         return _AliasProxy(
-            owner,
-            params,
+            owner or self.__origin__,
+            params or self.__args__,
             cascade=self.__cascade__,
         )
 
