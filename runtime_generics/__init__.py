@@ -5,10 +5,6 @@ This library provides a decorator that allows you to mark a class as
 a 'runtime generic': after instantiation, the class will have a `__args__` attribute
 that contains the type arguments of the instance.
 
-You can conveniently access all type arguments of a generic class instance
-using the `get_all_arguments` function, or retrieve a specific part of arguments
-with the `get_arguments` using a selector class (see below).
-
 Examples
 --------
 ```python
@@ -16,7 +12,7 @@ Examples
 >>> # Python 3.8+
 ... from __future__ import annotations
 ... from typing import Generic, TypeVar
-... from runtime_generics import runtime_generic, select
+... from runtime_generics import get_type_arguments, runtime_generic
 ...
 ... T = TypeVar("T")
 ...
@@ -25,24 +21,24 @@ Examples
 ...     type_argument: type[T]
 ...
 ...     def __init__(self) -> None:
-...         self.type_argument = select[T](self)
+...         (self.type_argument,) = get_type_arguments(self)
 ...
 ...     @classmethod
-...     def whoami(cls):
+...     def whoami(cls) -> type[MyGeneric[T]]:
 ...        print(f"I am {cls}")
 ...
 >>> # Python 3.12+
-... from runtime_generics import runtime_generic, select
+... from runtime_generics import get_type_arguments, runtime_generic
 ...
 ... @runtime_generic
 ... class MyGeneric[T]:
 ...     type_argument: type[T]
 ...
 ...     def __init__(self) -> None:
-...         self.type_argument = select[T](self)
+...         (self.type_argument,) = get_type_arguments(self)
 ...
 ...     @classmethod
-...     def whoami(cls):
+...     def whoami(cls) -> type[MyGeneric[T]]:
 ...         print(f"I am {cls}")
 ...
 >>> my_generic = MyGeneric[int]()
@@ -56,69 +52,45 @@ I am MyGeneric[int]
 
 from __future__ import annotations
 
-from itertools import chain
 from types import MethodType
-from typing import TYPE_CHECKING, Any, ForwardRef, Generic, Protocol, TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar, overload
 from typing import _GenericAlias as _typing_GenericAlias  # type: ignore[attr-defined]
 from typing import get_args as _typing_get_args
 
-from typing_extensions import TypeVarTuple, Unpack, deprecated
+from typing_extensions import TypeVarTuple
 
 if TYPE_CHECKING:
     from collections.abc import Callable
 
-    from typing_extensions import TypeGuard
+    from typing_extensions import Self, TypeGuard
+
+try:
+    from typing import _TypingEmpty  # type: ignore[attr-defined]
+except ImportError:
+    _TypingEmpty = ()
+
+try:
+    # Not removed in Python 3.13, but not documented either.
+    from typing import _TypingEllipsis  # type: ignore[attr-defined]
+except ImportError:
+    _TypingEllipsis = ...
 
 
 __all__ = (
     "runtime_generic",
-    "get_arg",
-    "get_args",
-    "get_argument",
-    "get_arguments",
-    "get_all_args",
-    "get_all_arguments",
+    "get_type_arguments",
     "generic_isinstance",
-    "FunctionalSelectorMixin",
-    "Select",
-    "Index",
-    "select",
-    "index",
 )
 
 
-class _GenericMetaclassProtocol(type(Protocol)):  # type: ignore[misc]
-    __parameters__: tuple[type[Any], ...]
-
-
-class _GenericProtocol(
-    Protocol,
-    metaclass=_GenericMetaclassProtocol,
-):  # pylint: disable=too-few-public-methods
-    """Protocol for runtime generics."""
-
-    def __class_getitem__(
-        cls,
-        item: tuple[type[Any], ...],
-    ) -> Any:  # pragma: no cover
-        ...
-
-
-GenericClass = TypeVar("GenericClass", bound=_GenericProtocol)
+GenericClass = TypeVar("GenericClass", bound=Any)
 GenericArguments = TypeVarTuple("GenericArguments")
 
 
-class _RuntimeGenericArgs(tuple):  # type: ignore[type-arg]
+class GenericArgs(tuple):  # type: ignore[type-arg]
     """Marker class for type arguments of runtime generics."""
 
     __slots__ = ()
-
-
-def _try_forward_ref(obj: str) -> str | ForwardRef:
-    try:
-        return ForwardRef(obj)
-    except SyntaxError:
-        return obj
 
 
 class _ClassMethodProxy:
@@ -129,27 +101,62 @@ class _ClassMethodProxy:
     ) -> None:
         self.alias_proxy = alias_proxy
         self.cls_method = cls_method
-        self.__func__ = self.cls_method.__func__
 
-    def __get__(self, instance: object, owner: type[Any] | None = None) -> MethodType:
+    def __get__(
+        self,
+        instance: object,
+        owner: type[object] | None = None,
+    ) -> MethodType:
         return MethodType(self.cls_method.__func__, self.alias_proxy)
+
+
+ALIAS_PROXY_INTERNS: dict[GenericArgs, _AliasProxy] = {}
+
+
+def _normalize_generic_args(
+    args: type[Any] | tuple[Any, ...],
+) -> GenericArgs:
+    """Normalize type arguments to a canonical form."""
+    if not isinstance(args, tuple):
+        args = (args,)
+    return GenericArgs(
+        () if arg is _TypingEmpty else ... if arg is _TypingEllipsis else arg
+        for arg in args
+    )
 
 
 class _AliasProxy(
     _typing_GenericAlias,  # type: ignore[misc,call-arg]
     _root=True,
 ):
+    __args__: tuple[type[Any], ...]
+
+    def __new__(
+        cls,
+        origin: type[GenericClass],  # noqa: ARG003
+        params: tuple[Any, ...],
+        **_kwds: Any,
+    ) -> Self:
+        # A factory constructor--returns an existing instance if possible.
+        args = _normalize_generic_args(params)
+        self = ALIAS_PROXY_INTERNS.get(args)
+        if self is None:
+            self = super().__new__(cls)
+        return self
+
     def __init__(
         self,
         origin: type[GenericClass],
         params: tuple[Any, ...],
+        *,
+        cascade: bool = False,
         **kwds: Any,
     ) -> None:
-        patched_params = tuple(
-            _try_forward_ref(param) if isinstance(param, str) else param
-            for param in (params if isinstance(params, tuple) else (params,))
-        )
-        super().__init__(origin, patched_params, **kwds)
+        super().__init__(origin, params, **kwds)
+        self.__cascade__ = cascade
+        self.__args__ = args = GenericArgs(self.__args__)
+
+        ALIAS_PROXY_INTERNS[args] = self
         cls_dict = vars(origin)
         for cls_method_name, cls_method in cls_dict.items():
             if isinstance(cls_method, classmethod):
@@ -159,74 +166,59 @@ class _AliasProxy(
                     _ClassMethodProxy(self, cls_method),
                 )
 
-    def __get_arguments__(
-        self,
-        instance: GenericClass,
-        *,
-        _origin: type[Any] | None = None,
-    ) -> Any:
-        method = object.__getattribute__(
-            _origin or self.__origin__,
-            "__get_arguments__",
-        )
-        return method.__func__(self, instance)
-
-    # @override?
-    def copy_with(self, params: tuple[Any, ...] = ()) -> _AliasProxy:
-        return _AliasProxy(self.__origin__, params, name=self._name, inst=self._inst)
-
     def __call__(self, *args: Any, **kwargs: Any) -> Any:
         origin = self.__origin__
-        if issubclass(origin, FunctionalSelectorMixin):
-            # Functional selector API
-            arguments = self.__get_arguments__(*args, **kwargs, _origin=origin.__base__)
-            if any(isinstance(arg, slice) for arg in self.__args__):
-                return arguments
-            if len(arguments) == 1:
-                return arguments[0]
-            return arguments
         instance: Any = origin.__new__(origin, *args, **kwargs)
-        instance.__args__ = _RuntimeGenericArgs(_typing_get_args(self))
-        instance.__init__(*args, **kwargs)  # pylint: disable=unnecessary-dunder-call
+        instance.__args__ = self.__args__
+        instance.__init__(*args, **kwargs)
         return instance
 
 
-def generic_isinstance(obj: object, cls: type[GenericClass]) -> TypeGuard[GenericClass]:
-    """Perform an`isinstance()` check on a runtime generic."""
-    # Not defining __instancecheck__ is intentional.
-    if isinstance(cls, _typing_GenericAlias):
-        return (
-            isinstance(obj, cls.__origin__) and get_all_arguments(obj) == cls.__args__
-        )
-    return isinstance(obj, cls)
+class _RuntimeGenericDescriptor:
+    def __init__(self, *, cascade: bool) -> None:
+        self.cascade = cascade
 
-
-# TODO(bswck): generic_issubclass()
-# https://github.com/bswck/runtime_generics/issues/5
-
-
-class _RuntimeGenericDescriptor:  # pylint: disable=too-few-public-methods
     def __get__(
         self,
         instance: object,
-        owner: type[Any] | None = None,
+        owner: type[Any],
     ) -> Callable[..., _AliasProxy]:
-        cls = owner
-        if cls is None:  # pragma: no cover
-            # Probably redundant, but we support this case anyway
-            # https://docs.python.org/3/reference/datamodel.html#object.__get__
-            # X.__class__ instead of type(X) to honor .__class__ descriptor behavior
-            cls = instance.__class__
-        return lambda args: _AliasProxy(cls, args)
+        # X.__class__ instead of type(X) to honor .__class__ descriptor behavior
+        return lambda args: _AliasProxy(owner, args, cascade=self.cascade)
 
 
-def runtime_generic(cls: type[GenericClass]) -> type[GenericClass]:
+@overload
+def runtime_generic(
+    cls: None = None,
+    *,
+    cascade: bool = False,
+) -> Callable[[type[GenericClass]], type[GenericClass]]:
+    ...
+
+
+@overload
+def runtime_generic(
+    cls: type[GenericClass],
+    *,
+    cascade: bool = False,
+) -> type[GenericClass]:
+    ...
+
+
+def runtime_generic(
+    cls: type[GenericClass] | None = None,
+    *,
+    cascade: bool = False,
+) -> type[GenericClass] | Callable[[type[GenericClass]], type[GenericClass]]:
     """
     Mark a class as a runtime generic.
 
     This is a class decorator that dynamically adds a `__class_getitem__` descriptor
     to the class. This method returns a callable that takes type arguments and returns
     a new instance of the class with the `__args__` attribute set to the type arguments.
+
+    If `cascade` is `True`, the `__class_getitem__` descriptor will be added to all
+    subclasses of the decorated class as they are created.
 
     Examples
     --------
@@ -236,12 +228,14 @@ def runtime_generic(cls: type[GenericClass]) -> type[GenericClass]:
     >>> Foo[int]().__args__
     (int,)
     """
-    descriptor = _RuntimeGenericDescriptor()
-    cls.__class_getitem__ = descriptor  # type: ignore[assignment,method-assign]
+    if cls is None:
+        return lambda cls: runtime_generic(cls, cascade=cascade)
+    descriptor = _RuntimeGenericDescriptor(cascade=cascade)
+    cls.__class_getitem__ = descriptor  # type: ignore[attr-defined]
     return cls
 
 
-def get_all_arguments(instance: object) -> tuple[Any, ...]:
+def get_type_arguments(instance: object) -> tuple[type[Any], ...]:
     """
     Get all type arguments of a runtime generic instance.
 
@@ -260,201 +254,49 @@ def get_all_arguments(instance: object) -> tuple[Any, ...]:
     >>> @runtime_generic
     ... class Foo[T]:
     ...     pass
-    >>> args: tuple[type[int]] = get_all(Foo[int]())
+    >>> args: tuple[type[int]] = get_type_arguments(Foo[int]())
     >>> args
     (<class 'int'>,)
     """
     args = getattr(instance, "__args__", ())
-    return (
-        tuple(args) if isinstance(args, _RuntimeGenericArgs) else _typing_get_args(args)
-    )
+    return tuple(args) if isinstance(args, GenericArgs) else _typing_get_args(args)
 
 
-get_all_args = get_all_arguments
-
-
-class FunctionalSelectorMixin:
+def generic_isinstance(obj: object, cls: type[GenericClass]) -> TypeGuard[GenericClass]:
     """
-    Mixin for functional selectors.
+    Perform an `isinstance()` check on a runtime generic.
 
-    TODO(bswck): documentation.
+    Currently only invariant type arguments are supported, without argument inheritance.
     """
+    # Not defining __instancecheck__() is intentional.
+    # Using isinstance() with a parametrized runtime generic
+    # would result in a type error, even when the custom subclass of GenericAlias
+    # implements __instancecheck__() correctly.
+    if get_type_arguments(obj) == get_type_arguments(cls):
+        return issubclass(obj.__class__, cls.__origin__)
+    return generic_issubclass(obj.__class__, cls)
 
 
-@runtime_generic
-class Select(Generic[Unpack[GenericArguments]]):
-    """Select[] selector. Selects provided type variables."""
-
-    @classmethod
-    def __get_arguments__(
-        cls,
-        instance: GenericClass,
-    ) -> tuple[Any, ...]:
-        """Return the selected type arguments."""
-        arguments = get_all_arguments(instance)
-        tvars = _typing_get_args(cls)
-        all_tvars = instance.__class__.__parameters__
-
-        tvars_to_arguments = {}
-        argument_iter = iter(arguments)
-        for tvar in all_tvars:
-            if isinstance(tvar, TypeVarTuple):
-                tvars_to_arguments[Unpack[tvar]] = tuple(argument_iter)
-                break
-            tvars_to_arguments[tvar] = (next(argument_iter),)
-        return tuple(chain.from_iterable(tvars_to_arguments[tvar] for tvar in tvars))
-
-
-class _FunctionalSelect(
-    Select[Unpack[GenericArguments]],
-    Generic[Unpack[GenericArguments]],
-    FunctionalSelectorMixin,
-):
+def generic_issubclass(
+    cls_obj: Any,
+    cls: type[GenericClass],
+) -> TypeGuard[GenericClass]:
     """
-    Functional version of `Select`.
+    Perform an `issubclass()` check on a runtime generic.
 
-    Examples
-    --------
-    >>> @runtime_generic
-    ... class Foo[T1, T2]:
-    ...     pass
-    ...
-    >>> select["T1"](Foo[int, str]())
-    <class 'int'>
+    Currently only invariant type arguments are supported, without argument inheritance.
     """
-
-
-select: Any = _FunctionalSelect
-
-
-def _map_index_argument(obj: object, /, all_tvars: tuple[type[Any], ...]) -> int | None:
-    return obj if isinstance(obj, int) or obj is None else all_tvars.index(obj)
-
-
-@runtime_generic
-class _Index(Generic[Unpack[GenericArguments]]):
-    """Note: right-inclusive."""
-
-    @classmethod
-    def __get_arguments__(cls, instance: GenericClass) -> tuple[Any, ...]:
-        arguments = get_all_arguments(instance)
-        all_tvars = instance.__class__.__parameters__
-        result: list[Any] = []
-
-        for index_object in _typing_get_args(cls):
-            if isinstance(index_object, slice):
-                start, stop, step = (
-                    _map_index_argument(obj, all_tvars)
-                    for obj in (
-                        index_object.start,
-                        index_object.stop,
-                        index_object.step,
-                    )
-                )
-                result.extend(
-                    arguments[start : stop if stop is None else stop + 1 : step],
-                )
-            else:
-                err = f"Expected an integer or a type variable, got {index_object!r}"
-                try:
-                    argument = _map_index_argument(index_object, all_tvars)
-                except ValueError:
-                    raise TypeError(err) from None
-                else:
-                    if argument is None:
-                        raise TypeError(err) from None
-                result.append(arguments[argument])
-        return tuple(result)
-
-
-# A nuclear workaround for any dubious problems with indexing/slicing,
-# such as in cases like Index[5] or Index[1:3, 2:5].
-Index: Any = _Index
-
-
-class _FunctionalIndex(
-    _Index[Unpack[GenericArguments]],
-    Generic[Unpack[GenericArguments]],
-    FunctionalSelectorMixin,
-):
-    """
-    Functional version of `Index`.
-
-    Examples
-    --------
-    >>> @runtime_generic
-    ... class Foo[T1, T2]:
-    ...     pass
-    ...
-    >>> index[1](Foo[int, str]())
-    <class 'str'>
-    """
-
-
-index: Any = _FunctionalIndex
-
-
-def get_arguments(
-    instance: object,
-    argument_type: type[
-        Select[Unpack[GenericArguments]] | Index[Unpack[GenericArguments]]
-    ]
-    | None = None,
-) -> tuple[Any, ...]:
-    """
-    Get the single type argument of a runtime generic instance.
-
-    Parameters
-    ----------
-    instance
-        An instance of a class that was decorated with `@runtime_generic`.
-
-    argument_type
-        A selector of the type argument. If None (default), the instance
-        of a generic class is assumed to have only one type argument
-        and if that is untrue, a ValueError is raised.
-
-    local_ns
-        Local namespace to resolve deferred type arguments from.
-
-    global_ns
-        Global namespace to resolve deferred type arguments from.
-
-    stack_offset
-        Stack offset: index of the underlying frame to the caller in the stack
-        (`inspect.stack()`).
-
-    Returns
-    -------
-    args
-        The type arguments of the instance.
-
-    Raises
-    ------
-    ValueError
-        If the instance has more than one type argument.
-
-    Examples
-    --------
-    >>> @runtime_generic
-    ... class Foo[T]:
-    ...     pass
-    >>> args: tuple[type[int]] = get_arguments(Foo[int]())
-    >>> args
-    (<class 'int'>,)
-    """
-    arguments = get_all_arguments(instance)
-
-    if argument_type is None:
-        return arguments
-
-    return argument_type.__get_arguments__(instance)
-
-
-get_args = get_arguments
-get_arg = get_argument = deprecated(
-    f"{__name__}.get_arg()/.get_argument() is deprecated"
-    f"use {__name__}.get_arguments() instead",
-    category=DeprecationWarning,
-    stacklevel=2,
-)(get_arguments)
+    # Not defining __subclasscheck__() is intentional.
+    # Using issubclass() with a parametrized runtime generic
+    # would result in a type error, even when the custom subclass of GenericAlias
+    # implements __subclasscheck__() correctly.
+    if isinstance(cls, _typing_GenericAlias):
+        if isinstance(cls_obj, _typing_GenericAlias) and not issubclass(
+            cls_obj.__origin__,
+            cls.__origin__,
+        ):
+            return False
+        return get_type_arguments(cls_obj) == get_type_arguments(cls)
+    if isinstance(cls_obj, _typing_GenericAlias):
+        return get_type_arguments(cls_obj) in (cls.__parameters__, (Any,))
+    return issubclass(cls_obj, cls)
