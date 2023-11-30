@@ -198,8 +198,6 @@ class _AliasProxy(
             owner,
             params,
             cascade=self.__cascade__,
-            inst=self._inst,
-            special=self._special,
         )
 
 
