@@ -62,7 +62,10 @@ from typing_extensions import TypeVarTuple
 if TYPE_CHECKING:
     from collections.abc import Callable
 
-    from typing_extensions import Self, TypeGuard
+    from typing_extensions import ParamSpec, Self, TypeGuard
+
+    P = ParamSpec("P")
+    R = TypeVar("R")
 
 try:
     from typing import _TypingEmpty  # type: ignore[attr-defined]
@@ -107,7 +110,10 @@ class _ClassMethodProxy:
         instance: object,
         owner: type[object] | None = None,
     ) -> MethodType:
-        return MethodType(self.cls_method.__func__, self.alias_proxy)
+        return MethodType(
+            self.cls_method.__func__,
+            self.alias_proxy.copy_with(owner=owner),
+        )
 
 
 ALIAS_PROXY_INTERNS: dict[tuple[type[Any], GenericArgs], _AliasProxy] = {}
@@ -159,7 +165,11 @@ class _AliasProxy(
         ALIAS_PROXY_INTERNS[(origin, args)] = self
         cls_dict = vars(origin)
         for cls_method_name, cls_method in cls_dict.items():
-            if isinstance(cls_method, classmethod):
+            if isinstance(cls_method, classmethod) and not getattr(
+                cls_method,
+                "__no_alias__",
+                False,
+            ):
                 setattr(
                     origin,
                     cls_method_name,
@@ -172,6 +182,24 @@ class _AliasProxy(
         instance.__args__ = self.__args__
         instance.__init__(*args, **kwargs)
         return instance
+
+    def copy_with(
+        self,
+        params: tuple[type[object], ...] | None = None,
+        owner: type[object] | None = None,
+    ) -> _AliasProxy:
+        """Create a copy of the alias proxy with a new owner or new type arguments."""
+        if owner is None:
+            owner = self.__origin__
+        if not params:
+            params = self.__args__
+        return _AliasProxy(
+            owner,
+            params,
+            cascade=self.__cascade__,
+            inst=self._inst,
+            special=self._special,
+        )
 
 
 class _RuntimeGenericDescriptor:
@@ -260,6 +288,12 @@ def get_type_arguments(instance: object) -> tuple[type[Any], ...]:
     """
     args = getattr(instance, "__args__", ())
     return tuple(args) if isinstance(args, GenericArgs) else _typing_get_args(args)
+
+
+def no_alias(cls_method: Callable[P, R]) -> Callable[P, R]:
+    """Mark a classmethod as not being passed a generic alias in place of cls."""
+    cls_method.__no_alias__ = True  # type: ignore[attr-defined]
+    return cls_method
 
 
 def generic_isinstance(obj: object, cls: type[GenericClass]) -> TypeGuard[GenericClass]:
