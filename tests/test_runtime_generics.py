@@ -10,6 +10,7 @@ from runtime_generics import (
     generic_isinstance,
     generic_issubclass,
     get_type_arguments,
+    no_alias,
     runtime_generic,
 )
 
@@ -64,35 +65,43 @@ def test_get_all_arguments_variadic() -> None:
     assert get_type_arguments(VariadicGeneric[str, int, float]()) == (str, int, float)
 
 
-def test_classmethod_transform() -> None:
+def test_classmethod_alias() -> None:
     @runtime_generic
-    class C(Generic[T]):
+    class TestedClass(Generic[T]):
         @classmethod
-        def foo(cls) -> type[C[T]]:
+        def classmethod_with_alias(cls) -> type[TestedClass[T]]:
             return cls
 
-    assert C[int].foo() == C[int]
+        @no_alias
+        @classmethod
+        def classmethod_without_alias(cls) -> type[TestedClass[Any]]:
+            return cls
+
+    assert TestedClass[int].classmethod_with_alias() is TestedClass[int]
+    assert TestedClass[int].classmethod_without_alias() is TestedClass
+
 
 
 def test_generic_isinstance() -> None:
     @runtime_generic
-    class C(Generic[T]):
+    class TestedClass(Generic[T]):
         pass
 
-    assert generic_isinstance(C[int](), C[int])
-    assert not generic_isinstance(C[int](), C[str])
-    assert generic_isinstance(C[int](), C)
+    assert generic_isinstance(TestedClass[int](), TestedClass[int])
+    assert not generic_isinstance(TestedClass[int](), TestedClass[str])
+    assert generic_isinstance(TestedClass[int](), TestedClass)
 
 
 def test_generic_issubclass() -> None:
     @runtime_generic
-    class C(Generic[T]):
+    class TestedClass(Generic[T]):
         pass
 
-    assert generic_issubclass(C[int], C[int])
-    assert generic_issubclass(C[Any], C)
-    assert not generic_issubclass(int, C[int])
-    assert not generic_issubclass(C[int], C[str])
-    assert not generic_issubclass(C[int], C)
-    assert not generic_issubclass(SingleArgGeneric[int], C)
-    assert not generic_issubclass(SingleArgGeneric[int], C[int])
+    assert generic_issubclass(TestedClass[int], TestedClass[int])
+    assert generic_issubclass(TestedClass[Any], TestedClass)
+    assert not generic_issubclass(int, TestedClass[int])
+    assert not generic_issubclass(TestedClass[int], TestedClass[str])
+    assert not generic_issubclass(TestedClass[int], TestedClass)
+    assert not generic_issubclass(SingleArgGeneric[int], TestedClass)
+    assert not generic_issubclass(SingleArgGeneric[int], TestedClass[int])
+
