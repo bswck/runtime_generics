@@ -231,7 +231,7 @@ def runtime_generic(
     if cls is None:
         return lambda cls: runtime_generic(cls, cascade=cascade)
     descriptor = _RuntimeGenericDescriptor(cascade=cascade)
-    cls.__class_getitem__ = descriptor  # type: ignore[attr-defined]
+    cls.__class_getitem__ = descriptor
     return cls
 
 
