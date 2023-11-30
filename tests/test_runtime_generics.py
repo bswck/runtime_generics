@@ -28,7 +28,7 @@ class TwoArgGeneric(Generic[T, T2]):
     __args__: tuple[type[T], type[T2]]
 
 
-@runtime_generic
+@runtime_generic(cascade=False)
 class VariadicGeneric(Generic[T, Unpack[Ts]]):
     __args__: tuple[type[Any], ...]
 

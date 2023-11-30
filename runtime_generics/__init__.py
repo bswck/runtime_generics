@@ -149,7 +149,7 @@ class _AliasProxy(
         origin: type[GenericClass],
         params: tuple[Any, ...],
         *,
-        cascade: bool = False,
+        cascade: bool = True,
         **kwds: Any,
     ) -> None:
         super().__init__(origin, params, **kwds)
@@ -191,7 +191,7 @@ class _RuntimeGenericDescriptor:
 def runtime_generic(
     cls: None = None,
     *,
-    cascade: bool = False,
+    cascade: bool = ...,
 ) -> Callable[[type[GenericClass]], type[GenericClass]]:
     ...
 
@@ -200,7 +200,7 @@ def runtime_generic(
 def runtime_generic(
     cls: type[GenericClass],
     *,
-    cascade: bool = False,
+    cascade: bool = ...,
 ) -> type[GenericClass]:
     ...
 
