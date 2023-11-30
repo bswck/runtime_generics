@@ -30,7 +30,7 @@ class MyGeneric[T]:
         (self.type_argument,) = get_type_arguments(self)
 
     @classmethod
-    def whoami(cls):
+    def whoami(cls) -> None:
         print(f"I am {cls}")
 
 my_generic = MyGeneric[int]()
@@ -57,7 +57,7 @@ class MyGeneric(Generic[T]):
         (self.type_argument,) = get_type_arguments(self)
 
     @classmethod
-    def whoami(cls):
+    def whoami(cls) -> None:
         print(f"I am {cls}")
 
 my_generic = MyGeneric[int]()

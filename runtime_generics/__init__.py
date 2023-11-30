@@ -24,7 +24,7 @@ Examples
 ...         (self.type_argument,) = get_type_arguments(self)
 ...
 ...     @classmethod
-...     def whoami(cls) -> type[MyGeneric[T]]:
+...     def whoami(cls) -> None:
 ...        print(f"I am {cls}")
 ...
 >>> # Python 3.12+
@@ -38,7 +38,7 @@ Examples
 ...         (self.type_argument,) = get_type_arguments(self)
 ...
 ...     @classmethod
-...     def whoami(cls) -> type[MyGeneric[T]]:
+...     def whoami(cls) -> None:
 ...         print(f"I am {cls}")
 ...
 >>> my_generic = MyGeneric[int]()
