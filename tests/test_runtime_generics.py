@@ -104,4 +104,3 @@ def test_generic_issubclass() -> None:
     assert not generic_issubclass(TestedClass[int], TestedClass)
     assert not generic_issubclass(SingleArgGeneric[int], TestedClass)
     assert not generic_issubclass(SingleArgGeneric[int], TestedClass[int])
-
