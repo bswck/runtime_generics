@@ -80,9 +80,9 @@ except ImportError:  # pragma: no cover
 
 
 __all__ = (
-    "get_type_arguments",
     "generic_isinstance",
     "generic_issubclass",
+    "get_type_arguments",
     "no_alias",
     "runtime_generic",
 )
