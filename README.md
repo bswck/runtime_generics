@@ -14,7 +14,7 @@ to generic classes before instantiation.
 The library does three things:
 * makes it possible to retrieve the type arguments passed to the generic class at runtime
   before the class was instantiated;
-* supports basic instance/subclass checking of runtime generic classes.
+* supports basic instance/subclass checking of runtime generic classes;
 * given a parametrized generic class (generic alias),
   it makes every class method use generic alias `cls` instead of the origin class.
 
