@@ -110,7 +110,7 @@ class _ClassMethodProxy:
         return MethodType(self.cls_method.__func__, self.alias_proxy)
 
 
-ALIAS_PROXY_INTERNS: dict[GenericArgs, _AliasProxy] = {}
+ALIAS_PROXY_INTERNS: dict[tuple[type[Any], GenericArgs], _AliasProxy] = {}
 
 
 def _normalize_generic_args(
@@ -133,13 +133,13 @@ class _AliasProxy(
 
     def __new__(
         cls,
-        origin: type[GenericClass],  # noqa: ARG003
+        origin: type[GenericClass],
         params: tuple[Any, ...],
         **_kwds: Any,
     ) -> Self:
         # A factory constructor--returns an existing instance if possible.
         args = _normalize_generic_args(params)
-        self = ALIAS_PROXY_INTERNS.get(args)
+        self = ALIAS_PROXY_INTERNS.get((origin, args))
         if self is None:
             self = super().__new__(cls)
         return self
@@ -156,7 +156,7 @@ class _AliasProxy(
         self.__cascade__ = cascade
         self.__args__ = args = GenericArgs(self.__args__)
 
-        ALIAS_PROXY_INTERNS[args] = self
+        ALIAS_PROXY_INTERNS[(origin, args)] = self
         cls_dict = vars(origin)
         for cls_method_name, cls_method in cls_dict.items():
             if isinstance(cls_method, classmethod):
