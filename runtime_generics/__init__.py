@@ -66,13 +66,13 @@ if TYPE_CHECKING:
 
 try:
     from typing import _TypingEmpty  # type: ignore[attr-defined]
-except ImportError:
+except ImportError:  # pragma: no cover
     _TypingEmpty = ()
 
 try:
     # Not removed in Python 3.13, but not documented either.
     from typing import _TypingEllipsis  # type: ignore[attr-defined]
-except ImportError:
+except ImportError:  # pragma: no cover
     _TypingEllipsis = ...
 
 
@@ -208,7 +208,7 @@ def runtime_generic(
 def runtime_generic(
     cls: type[GenericClass] | None = None,
     *,
-    cascade: bool = False,
+    cascade: bool = True,
 ) -> type[GenericClass] | Callable[[type[GenericClass]], type[GenericClass]]:
     """
     Mark a class as a runtime generic.

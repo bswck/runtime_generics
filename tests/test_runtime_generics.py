@@ -90,6 +90,7 @@ def test_generic_issubclass() -> None:
         pass
 
     assert generic_issubclass(C[int], C[int])
+    assert not generic_issubclass(int, C[int])
     assert not generic_issubclass(C[int], C[str])
     assert not generic_issubclass(C[int], C)
     assert generic_issubclass(C[Any], C)
