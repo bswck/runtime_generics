@@ -29,7 +29,6 @@ unstash() {
 
 setup_gh() {
     echo "Calling GitHub setup hooks..."
-    supply_smokeshow_key
 }
 
 determine_project_path() {
