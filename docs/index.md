@@ -7,65 +7,7 @@
 [![License](https://img.shields.io/github/license/bswck/runtime_generics.svg?label=License)](https://github.com/bswck/runtime_generics/blob/HEAD/LICENSE)
 [![Pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
 
-Highly into type-safe Python code?
-
-_runtime_generics_ is a niche Python library that allows you to reuse type arguments explicitly passed at runtime
-to generic classes before instantiation.
-
-The library does three things:
-- makes it possible to retrieve the type arguments passed to the generic class at runtime
-  before the class was instantiated;
-- supports basic instance/subclass checking of runtime generic classes;
-- given a parametrized generic class (generic alias),
-  it makes every class method use generic alias `cls` instead of the origin class.
-
-# A simple example
-3.12+ ([PEP 695](https://peps.python.org/pep-0695) syntax):
-```python
-from runtime_generics import get_type_arguments, runtime_generic
-
-@runtime_generic
-class MyGeneric[T]:
-    type_argument: type[T]
-
-    def __init__(self) -> None:
-        (self.type_argument,) = get_type_arguments(self)
-
-    @classmethod
-    def whoami(cls) -> None:
-        print(f"I am {cls}")
-
-my_generic = MyGeneric[int]()
-assert my_generic.type_argument is int
-my_generic.whoami()  # I am MyGeneric[int]
-
-```
-
-3.8+:
-
-```python
-from __future__ import annotations
-
-from typing import Generic, TypeVar
-from runtime_generics import get_type_arguments, runtime_generic
-
-T = TypeVar("T")
-
-@runtime_generic
-class MyGeneric(Generic[T]):
-    type_argument: type[T]
-
-    def __init__(self) -> None:
-        (self.type_argument,) = get_type_arguments(self)
-
-    @classmethod
-    def whoami(cls) -> None:
-        print(f"I am {cls}")
-
-my_generic = MyGeneric[int]()
-assert my_generic.type_argument is int
-my_generic.whoami()  # I am MyGeneric[int]
-```
+Reuse type arguments explicitly passed at runtime to a generic class before instantiating.
 
 # Installation
 If you want to…
@@ -88,8 +30,8 @@ poetry add runtime-generics
 ## …contribute to [runtime_generics](https://github.com/bswck/runtime_generics) 🚀
 
 
-> [!Note]
-> If you use Windows, it is highly recommended to complete the installation in the way presented below through [WSL2](https://learn.microsoft.com/en-us/windows/wsl/install).
+!!! Note
+    If you use Windows, it is highly recommended to complete the installation in the way presented below through [WSL2](https://learn.microsoft.com/en-us/windows/wsl/install).
 
 
 
