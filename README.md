@@ -13,13 +13,13 @@ _runtime_generics_ is a niche Python library that allows you to reuse type argum
 to generic classes before instantiation.
 
 The library does three things:
-* makes it possible to retrieve the type arguments passed to the generic class at runtime
+- makes it possible to retrieve the type arguments passed to the generic class at runtime
   before the class was instantiated;
-* supports basic instance/subclass checking of runtime generic classes;
-* given a parametrized generic class (generic alias),
+- supports basic instance/subclass checking of runtime generic classes;
+- given a parametrized generic class (generic alias),
   it makes every class method use generic alias `cls` instead of the origin class.
 
-# Simple example
+# A simple example
 3.12+ ([PEP 695](https://peps.python.org/pep-0695) syntax):
 ```python
 from runtime_generics import get_type_arguments, runtime_generic
