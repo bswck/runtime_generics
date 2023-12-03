@@ -14,6 +14,7 @@ Issues = "https://github.com/bswck/runtime_generics/issues"
 Distribution = "https://pypi.org/project/runtime-generics/"
 Coverage = "https://coverage-badge.samuelcolvin.workers.dev/redirect/bswck/runtime_generics"
 
+
 [tool.poetry.dependencies]
 python = "^3.8"
 

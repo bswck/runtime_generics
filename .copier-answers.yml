@@ -1,7 +1,8 @@
-_commit: b7c7c7d
+_commit: '9815413'
 _src_path: gh:bswck/skeleton
 author_username: bswck
 docs: true
+docs_slug: runtime-generics
 email_address: bswck.dev@gmail.com
 github_username: bswck
 license_name: MIT

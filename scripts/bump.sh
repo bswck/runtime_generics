@@ -2,7 +2,7 @@
 # (C) 2023–present Bartosz Sławecki (bswck)
 #
 # Sync with bswck/skeleton.
-# This script was adopted from https://github.com/bswck/skeleton/tree/b7c7c7d/project/scripts/sync.sh.jinja
+# This script was adopted from https://github.com/bswck/skeleton/tree/9815413/project/scripts/bump.sh.jinja
 #
 # Usage:
 # $ poe bump
@@ -10,7 +10,7 @@
 # shellcheck disable=SC2005
 
 
-# Automatically copied from https://github.com/bswck/skeleton/tree/b7c7c7d/handle-task-event.sh
+# Automatically copied from https://github.com/bswck/skeleton/tree/9815413/handle-task-event.sh
 make_token() {
     export TOKEN
     TOKEN="$(echo "$(date +%s%N)" | sha256sum | head -c "${1:-10}")"
@@ -89,7 +89,7 @@ run_update_algorithm() {
 }
 
 after_update_algorithm() {
-    # Run post-update hooks, auto-commit and push changes
+    # Run post-update hooks, auto-commit changes
     cd "$PROJECT_PATH" || exit 1
 
     echo "Previous skeleton revision: $LAST_REF"
@@ -115,7 +115,6 @@ after_update_algorithm() {
     echo "Press ENTER to commit the changes or CTRL+C to abort."
     read -r || exit 1
     git commit --no-verify -m "$COMMIT_MSG" -m "$REVISION_PARAGRAPH"
-    git push --no-verify
     setup_gh
     if test "$STASH_TOKEN"
     then
@@ -125,7 +124,7 @@ after_update_algorithm() {
 }
 
 main() {
-    export LAST_REF="b7c7c7d"
+    export LAST_REF="9815413"
     export PROJECT_PATH_KEY="$$_skeleton_project_path"
     export NEW_REF_KEY="$$_skeleton_new_ref"
     export LAST_LICENSE_NAME="MIT"

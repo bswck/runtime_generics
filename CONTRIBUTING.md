@@ -1,7 +1,8 @@
+
 # Contributing to [runtime_generics](https://github.com/bswck/runtime_generics) 🎉
 Contributions are very welcome. 🚀
 
-There are many ways to contribute, ranging from **writing tutorials and improving the documentation**, to **submitting bug reports and feature requests or writing code** which can be incorporated into **runtime_generics**.
+There are many ways to contribute, ranging from **writing tutorials and improving the documentation**, to **submitting bug reports and feature requests or writing code** which can be **incorporated into runtime_generics**.
 
 ## Report bugs and request features 🐛
 Report these in the [issue tracker](https://github.com/bswck/runtime_generics/issues).
@@ -19,6 +20,7 @@ docs. If you're interested in helping out, check the [docs/](https://github.com/
 The best way to send feedback is to file an issue in the [issue tracker](https://github.com/bswck/runtime_generics).
 
 If you are proposing a feature:
+
 -   Explain in detail how it would work.
 -   Keep the scope as narrow as possible, to make it easier to implement.
 -   Remember that this is a volunteer-driven project, and that contributions are
@@ -29,8 +31,12 @@ If you are proposing a feature:
 Ready to contribute? Here's a quick guide on how to set up runtime_generics and make a change.
 
 
-> [!Note]
-> If you use Windows, it is highly recommended to complete the installation in the way presented below through [WSL2](https://learn.microsoft.com/en-us/windows/wsl/install).
+
+!!! Note
+    If you use Windows, it is highly recommended to complete the installation in the way presented below through [WSL2](https://learn.microsoft.com/en-us/windows/wsl/install).
+
+
+
 1.  Fork the [runtime_generics repository](https://github.com/bswck/runtime_generics) on GitHub.
 
 1.  [Install Poetry](https://python-poetry.org/docs/#installation).<br/>
@@ -47,6 +53,7 @@ Ready to contribute? Here's a quick guide on how to set up runtime_generics and 
     ```shell
     pyenv install 3.8
     ```
+
 1.  Clone your fork locally and install dependencies.
 
     ```shell
@@ -57,6 +64,8 @@ Ready to contribute? Here's a quick guide on how to set up runtime_generics and 
     poetry shell
     pre-commit install --hook-type pre-commit --hook-type pre-push
     ```
+
+
 1.  Create a branch for local development:
 
     ```shell
