@@ -1,7 +1,7 @@
 # Contributing to [runtime_generics](https://github.com/bswck/runtime_generics) 🎉
 Contributions are very welcome. 🚀
 
-There are many ways to contribute, ranging from **writing tutorials and improving the documentation**, to **submitting bug reports and feature requests or writing code** which can be **incorporated into runtime_generics**.
+There are many ways to contribute, ranging from **writing tutorials and improving the documentation**, to **submitting bug reports and feature requests** or **writing code** which can be incorporated into runtime_generics.
 
 ## Report bugs and request features 🐛
 Report these in the [issue tracker](https://github.com/bswck/runtime_generics/issues).
@@ -40,6 +40,7 @@ Ready to contribute? Here's a quick guide on how to set up runtime_generics and 
 
 1.  [Install Poetry](https://python-poetry.org/docs/#installation).<br/>
     Poetry is an amazing tool for managing dependencies & virtual environments, building packages and publishing them.
+    You might use [pipx](https://github.com/pypa/pipx#readme) to install it globally (recommended):
 
     ```shell
     pipx install poetry
@@ -60,6 +61,11 @@ Ready to contribute? Here's a quick guide on how to set up runtime_generics and 
     cd path/to/runtime_generics
     poetry env use $(cat .python-version)
     poetry install
+    ```
+
+    Next up, simply activate the virtual environment and install pre-commit hooks:
+
+    ```shell
     poetry shell
     pre-commit install --hook-type pre-commit --hook-type pre-push
     ```
@@ -92,6 +98,9 @@ Ready to contribute? Here's a quick guide on how to set up runtime_generics and 
 
 ## Pull Request guidelines 📝
 1. Initially mark the PR as a draft, so that the maintainers know that you are making final touches.
-2. Ensure that the [test coverage](https://coverage-badge.samuelcolvin.workers.dev/redirect/bswck/runtime_generics) is not decreased. If you add a new feature, please add tests for it. [Read more about coverage](https://coverage.readthedocs.io/en/latest/index.html).
-3. Ensure that all GitHub checks pass. If they are disabled in your PR, ping the maintainers to request enabling them.
-4. Don't forget to link the relevant issue(s) in the PR description and describe the changes you made.
+
+1. Ensure that the [test coverage](https://coverage-badge.samuelcolvin.workers.dev/redirect/bswck/runtime_generics) is not decreased. If you add a new feature, please add tests for it. [Read more about coverage](https://coverage.readthedocs.io/en/latest/index.html).
+
+1. Ensure that all GitHub checks pass. If they are disabled in your PR, ping the maintainers to request enabling them.
+
+1. Don't forget to link the relevant issue(s) in the PR description and describe the changes you made.

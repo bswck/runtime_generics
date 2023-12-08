@@ -2,6 +2,7 @@
 # runtime_generics [![Package version](https://img.shields.io/pypi/v/runtime-generics?label=PyPI)](https://pypi.org/project/runtime-generics/) [![Supported Python versions](https://img.shields.io/pypi/pyversions/runtime-generics.svg?logo=python&label=Python)](https://pypi.org/project/runtime-generics/)
 [![Tests](https://github.com/bswck/runtime_generics/actions/workflows/test.yml/badge.svg)](https://github.com/bswck/runtime_generics/actions/workflows/test.yml)
 [![Coverage](https://coverage-badge.samuelcolvin.workers.dev/bswck/runtime_generics.svg)](https://coverage-badge.samuelcolvin.workers.dev/redirect/bswck/runtime_generics)
+[![Poetry](https://img.shields.io/endpoint?url=https://python-poetry.org/badge/v0.json)](https://python-poetry.org/)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![Code style](https://img.shields.io/badge/code%20style-black-000000.svg?label=Code%20style)](https://github.com/psf/black)
 [![License](https://img.shields.io/github/license/bswck/runtime_generics.svg?label=License)](https://github.com/bswck/runtime_generics/blob/HEAD/LICENSE)
@@ -39,6 +40,7 @@ poetry add runtime-generics
 
 1.  [Install Poetry](https://python-poetry.org/docs/#installation).<br/>
     Poetry is an amazing tool for managing dependencies & virtual environments, building packages and publishing them.
+    You might use [pipx](https://github.com/pypa/pipx#readme) to install it globally (recommended):
 
     ```shell
     pipx install poetry
@@ -59,6 +61,11 @@ poetry add runtime-generics
     cd path/to/runtime_generics
     poetry env use $(cat .python-version)
     poetry install
+    ```
+
+    Next up, simply activate the virtual environment and install pre-commit hooks:
+
+    ```shell
     poetry shell
     pre-commit install --hook-type pre-commit --hook-type pre-push
     ```

@@ -2,7 +2,7 @@
 # (C) 2023–present Bartosz Sławecki (bswck)
 #
 # Sync with bswck/skeleton.
-# This script was adopted from https://github.com/bswck/skeleton/tree/9815413/project/scripts/bump.sh.jinja
+# This script was adopted from https://github.com/bswck/skeleton/tree/cd034ea/project/scripts/bump.sh.jinja
 #
 # Usage:
 # $ poe bump
@@ -10,7 +10,7 @@
 # shellcheck disable=SC2005
 
 
-# Automatically copied from https://github.com/bswck/skeleton/tree/9815413/handle-task-event.sh
+# Automatically copied from https://github.com/bswck/skeleton/tree/cd034ea/handle-task-event.sh
 make_token() {
     export TOKEN
     TOKEN="$(echo "$(date +%s%N)" | sha256sum | head -c "${1:-10}")"
@@ -46,7 +46,7 @@ ensure_gh_environment() {
 supply_smokeshow_key() {
     # Supply smokeshow key to the repository
     echo "Checking if smokeshow secret needs to be created..."
-    ensure_gh_environment "Smokeshow" || echo "Failed to create smokeshow environment." 1>&2 && return 1
+    ensure_gh_environment "Smokeshow"
     if test "$(gh secret list -e Smokeshow | grep -o SMOKESHOW_AUTH_KEY)"
     then
         echo "Smokeshow secret already exists, aborting." && return 0
@@ -124,7 +124,7 @@ after_update_algorithm() {
 }
 
 main() {
-    export LAST_REF="9815413"
+    export LAST_REF="cd034ea"
     export PROJECT_PATH_KEY="$$_skeleton_project_path"
     export NEW_REF_KEY="$$_skeleton_new_ref"
     export LAST_LICENSE_NAME="MIT"
