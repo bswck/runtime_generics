@@ -1,1 +1,5 @@
-blank_issues_enabled: false
+# This file was generated from bswck/skeleton@65cc40e.
+# Instead of changing this particular file, you might want to alter the template:
+# https://github.com/bswck/skeleton/tree/65cc40e/project/.github/ISSUE_TEMPLATE/config.yml.jinja
+
+blank_issues_enabled: true

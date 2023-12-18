@@ -1,3 +1,7 @@
+# This file was generated from bswck/skeleton@65cc40e.
+# Instead of changing this particular file, you might want to alter the template:
+# https://github.com/bswck/skeleton/tree/65cc40e/project/.github/workflows/mypy.yml.jinja
+
 name: "Mypy"
 
 on: ["push"]
@@ -13,7 +17,7 @@ jobs:
         python-version: "3.8"
     - name: "Install the project"
       run: |
-        pipx install poetry
+        pip install poetry
         poetry install
     - name: "Type-check with mypy"
       run: >

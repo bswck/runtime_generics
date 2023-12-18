@@ -1,3 +1,7 @@
+# This file was generated from bswck/skeleton@65cc40e.
+# Instead of changing this particular file, you might want to alter the template:
+# https://github.com/bswck/skeleton/tree/65cc40e/project/.gitignore.jinja
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

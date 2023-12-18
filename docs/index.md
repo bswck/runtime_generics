@@ -11,11 +11,9 @@
 Reuse type arguments explicitly passed at runtime to a generic class before instantiating.
 
 # Installation
-If you want to…
 
 
 
-## …use this tool in your project 💻
 You might simply install it with pip:
 
 ```shell
@@ -28,8 +26,13 @@ If you use [Poetry](https://python-poetry.org/), then run:
 poetry add runtime-generics
 ```
 
-## …contribute to [runtime_generics](https://github.com/bswck/runtime_generics) 🚀
+## For contributors
 
+<!--
+This section was generated from bswck/skeleton@65cc40e.
+Instead of changing this particular file, you might want to alter the template:
+https://github.com/bswck/skeleton/tree/65cc40e/fragments/guide.md
+-->
 
 !!! Note
     If you use Windows, it is highly recommended to complete the installation in the way presented below through [WSL2](https://learn.microsoft.com/en-us/windows/wsl/install).

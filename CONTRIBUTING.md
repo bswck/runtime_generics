@@ -1,3 +1,8 @@
+<!--
+This file was generated from bswck/skeleton@65cc40e.
+Instead of changing this particular file, you might want to alter the template:
+https://github.com/bswck/skeleton/tree/65cc40e/fragments/contributing.md
+-->
 # Contributing to [runtime_generics](https://github.com/bswck/runtime_generics) 🎉
 Contributions are very welcome. 🚀
 
@@ -25,11 +30,25 @@ If you are proposing a feature:
 -   Remember that this is a volunteer-driven project, and that contributions are
     welcome! ✨
 
-## Get started! 🕹️
+## Pull Request guidelines 📝
+1. Initially mark the PR as a draft, so that the maintainers know that you are making final touches.
+
+1. Ensure that the [test coverage](https://coverage-badge.samuelcolvin.workers.dev/redirect/bswck/runtime_generics) is not decreased. If you add a new feature, please add tests for it. [Read more about coverage](https://coverage.readthedocs.io/en/latest/index.html).
+
+1. Ensure that all GitHub checks pass. If they are disabled in your PR, ping the maintainers to request enabling them.
+
+1. Don't forget to link the relevant issue(s) in the PR description and describe the changes you made.
+
+# Get started! 🕹️
 
 Ready to contribute? Here's a quick guide on how to set up runtime_generics and make a change.
 
 
+<!--
+This section was generated from bswck/skeleton@65cc40e.
+Instead of changing this particular file, you might want to alter the template:
+https://github.com/bswck/skeleton/tree/65cc40e/fragments/guide.md
+-->
 
 > [!Note]
 > If you use Windows, it is highly recommended to complete the installation in the way presented below through [WSL2](https://learn.microsoft.com/en-us/windows/wsl/install).
@@ -95,12 +114,3 @@ Ready to contribute? Here's a quick guide on how to set up runtime_generics and 
 
 1.  Submit a pull request through the GitHub website.
 
-
-## Pull Request guidelines 📝
-1. Initially mark the PR as a draft, so that the maintainers know that you are making final touches.
-
-1. Ensure that the [test coverage](https://coverage-badge.samuelcolvin.workers.dev/redirect/bswck/runtime_generics) is not decreased. If you add a new feature, please add tests for it. [Read more about coverage](https://coverage.readthedocs.io/en/latest/index.html).
-
-1. Ensure that all GitHub checks pass. If they are disabled in your PR, ping the maintainers to request enabling them.
-
-1. Don't forget to link the relevant issue(s) in the PR description and describe the changes you made.
