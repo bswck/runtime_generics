@@ -87,9 +87,9 @@ poetry add runtime-generics
 ## For contributors
 
 <!--
-This section was generated from bswck/skeleton@65cc40e.
+This section was generated from bswck/skeleton@e08c6ca.
 Instead of changing this particular file, you might want to alter the template:
-https://github.com/bswck/skeleton/tree/65cc40e/fragments/guide.md
+https://github.com/bswck/skeleton/tree/e08c6ca/project/README.md.jinja
 -->
 
 > [!Note]
