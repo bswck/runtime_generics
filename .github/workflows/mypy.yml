@@ -1,6 +1,6 @@
-# This file was generated from bswck/skeleton@d097ca9.
+# This file was generated from bswck/skeleton@ecf53d2.
 # Instead of changing this particular file, you might want to alter the template:
-# https://github.com/bswck/skeleton/tree/d097ca9/project/.github/workflows/mypy.yml.jinja
+# https://github.com/bswck/skeleton/tree/ecf53d2/project/.github/workflows/mypy.yml.jinja
 
 name: "Mypy"
 
