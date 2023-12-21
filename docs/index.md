@@ -1,5 +1,8 @@
 
-# runtime_generics [![Package version](https://img.shields.io/pypi/v/runtime-generics?label=PyPI)](https://pypi.org/project/runtime-generics/) [![Supported Python versions](https://img.shields.io/pypi/pyversions/runtime-generics.svg?logo=python&label=Python)](https://pypi.org/project/runtime-generics/)
+# runtime_generics ![skeleton](https://img.shields.io/badge/d097ca9-skeleton?label=%F0%9F%92%80%20bswck/skeleton&labelColor=black&color=grey&link=https%3A//github.com/bswck/skeleton)
+[![Package version](https://img.shields.io/pypi/v/runtime-generics?label=PyPI)](https://pypi.org/project/runtime-generics/)
+[![Supported Python versions](https://img.shields.io/pypi/pyversions/runtime-generics.svg?logo=python&label=Python)](https://pypi.org/project/runtime-generics/)
+
 [![Tests](https://github.com/bswck/runtime_generics/actions/workflows/test.yml/badge.svg)](https://github.com/bswck/runtime_generics/actions/workflows/test.yml)
 [![Coverage](https://coverage-badge.samuelcolvin.workers.dev/bswck/runtime_generics.svg)](https://coverage-badge.samuelcolvin.workers.dev/redirect/bswck/runtime_generics)
 [![Poetry](https://img.shields.io/endpoint?url=https://python-poetry.org/badge/v0.json)](https://python-poetry.org/)
@@ -29,9 +32,9 @@ poetry add runtime-generics
 ## For contributors
 
 <!--
-This section was generated from bswck/skeleton@e08c6ca.
+This section was generated from bswck/skeleton@d097ca9.
 Instead of changing this particular file, you might want to alter the template:
-https://github.com/bswck/skeleton/tree/e08c6ca/fragments/readme.md
+https://github.com/bswck/skeleton/tree/d097ca9/fragments/readme.md
 -->
 
 !!! Note

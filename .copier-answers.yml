@@ -1,4 +1,4 @@
-_commit: e08c6ca
+_commit: d097ca9
 _src_path: gh:bswck/skeleton
 author_username: bswck
 docs: true
@@ -16,6 +16,6 @@ pypi_project_description: Reuse type arguments explicitly passed at runtime to a
 pypi_project_name: runtime-generics
 python_version: '3.8'
 repo_name: runtime_generics
-test_suite: true
+tests: true
 use_precommit: true
 visibility: public
