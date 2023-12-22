@@ -1,8 +1,8 @@
 
 <!--
-This file was generated from bswck/skeleton@ecf53d2.
+This file was generated from bswck/skeleton@61eeffb.
 Instead of changing this particular file, you might want to alter the template:
-https://github.com/bswck/skeleton/tree/ecf53d2/project/%23%25%20if%20docs%20%25%23docs%23%25%20endif%20%25%23/contributing.md.jinja
+https://github.com/bswck/skeleton/tree/61eeffb/project/%23%25%20if%20docs%20%25%23docs%23%25%20endif%20%25%23/contributing.md.jinja
 -->
 # Contributing to [runtime_generics](https://github.com/bswck/runtime_generics) 🎉
 Contributions are very welcome. 🚀
@@ -47,9 +47,9 @@ Ready to contribute? Here's a quick guide on how to set up runtime_generics and 
 
 
 <!--
-This section was generated from bswck/skeleton@ecf53d2.
+This section was generated from bswck/skeleton@61eeffb.
 Instead of changing this particular file, you might want to alter the template:
-https://github.com/bswck/skeleton/tree/ecf53d2/project/%23%25%20if%20docs%20%25%23docs%23%25%20endif%20%25%23/contributing.md.jinja
+https://github.com/bswck/skeleton/tree/61eeffb/project/%23%25%20if%20docs%20%25%23docs%23%25%20endif%20%25%23/contributing.md.jinja
 -->
 
 !!! Note

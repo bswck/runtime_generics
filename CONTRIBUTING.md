@@ -1,7 +1,7 @@
 <!--
-This file was generated from bswck/skeleton@ecf53d2.
+This file was generated from bswck/skeleton@61eeffb.
 Instead of changing this particular file, you might want to alter the template:
-https://github.com/bswck/skeleton/tree/ecf53d2/fragments/contributing.md
+https://github.com/bswck/skeleton/tree/61eeffb/fragments/contributing.md
 -->
 # Contributing to [runtime_generics](https://github.com/bswck/runtime_generics) 🎉
 Contributions are very welcome. 🚀
@@ -46,9 +46,9 @@ Ready to contribute? Here's a quick guide on how to set up runtime_generics and 
 
 
 <!--
-This section was generated from bswck/skeleton@ecf53d2.
+This section was generated from bswck/skeleton@61eeffb.
 Instead of changing this particular file, you might want to alter the template:
-https://github.com/bswck/skeleton/tree/ecf53d2/fragments/guide.md
+https://github.com/bswck/skeleton/tree/61eeffb/fragments/guide.md
 -->
 
 > [!Note]
