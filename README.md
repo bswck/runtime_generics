@@ -70,6 +70,55 @@ assert my_generic.type_argument is int
 my_generic.whoami()  # I am MyGeneric[int]
 ```
 
+# TDD section
+> [!Note]
+> Before you read this, you might want to get to know
+> the type theory take on generic types:
+> [PEP 484](https://www.python.org/dev/peps/pep-0484/),
+
+Test-driven development of runtime generics with inheritance and variance.
+
+
+```py
+# Considering the following hierarchy:
+class A[T]:
+    pass
+
+
+class B[T](A[T]):
+    pass
+
+
+class C[X](B[int]):
+    pass
+
+
+class D[Z, Y](C[Y]):
+    pass
+
+
+class E[A, Y](D[A, int]):
+    # TypeVars are not interned (factory constructed),
+    # so Y in this scope is not the same object as Y in D
+    pass
+
+
+class F[T, *Ts](D[T, *Ts]):  # What then???
+    pass
+
+
+# We want the following results:
+generic_issubclass(B[int], A[int])  # True
+generic_issubclass(B, A[int])  # False
+generic_issubclass(B[int], A[str])  # False
+generic_issubclass(C[str], B[int])  # True
+generic_issubclass(C, B[int])  # True
+generic_issubclass(D[float, str], C[str])  # True
+generic_issubclass(E[float, str], C[int])  # True
+generic_issubclass(E[bytearray, str], D[bytearray, int])  # True
+```
+
+
 # Installation
 
 

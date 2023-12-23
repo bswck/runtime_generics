@@ -88,6 +88,8 @@ __all__ = (
 )
 
 
+_CONCRETE_PARENTS = "__concrete_parents__"
+_NO_ALIAS_FLAG = "__no_alias__"
 GenericClass = TypeVar("GenericClass", bound=Any)
 GenericArguments = TypeVarTuple("GenericArguments")
 
@@ -163,20 +165,24 @@ class _AliasProxy(
         super().__init__(origin, params, **kwds)
         self.__cascade__ = cascade
         self.__args__ = args = GenericArgs(self.__args__)
+        setattr(self, _CONCRETE_PARENTS, getattr(origin, _CONCRETE_PARENTS, ()))
 
         ALIAS_PROXY_INTERNS[(origin, args)] = self
-        cls_dict = vars(origin)
-        for cls_method_name, cls_method in cls_dict.items():
-            if isinstance(cls_method, classmethod) and not getattr(
-                cls_method,
-                "__no_alias__",
-                False,
-            ):
-                setattr(
-                    origin,
-                    cls_method_name,
-                    _ClassMethodProxy(self, cls_method),
-                )
+
+        for name, obj in vars(origin).items():
+            if isinstance(obj, classmethod) and not getattr(obj, _NO_ALIAS_FLAG, False):
+                setattr(origin, name, _ClassMethodProxy(self, obj))
+
+    def __mro_entries__(self, bases: tuple[type[Any], ...]) -> Any:
+        mro_entries = super().__mro_entries__(bases)
+        concrete_parents = (*getattr(self, _CONCRETE_PARENTS, ()), self)
+
+        class _ConcreteParentsHook:
+            def __init_subclass__(cls) -> None:
+                setattr(cls, _CONCRETE_PARENTS, concrete_parents)
+                cls.__bases__ = mro_entries
+
+        return (*mro_entries, _ConcreteParentsHook)
 
     def __call__(self, *args: Any, **kwargs: Any) -> Any:
         origin = self.__origin__
