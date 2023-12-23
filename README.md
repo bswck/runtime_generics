@@ -73,8 +73,7 @@ my_generic.whoami()  # I am MyGeneric[int]
 # TDD section
 > [!Note]
 > Before you read this, you might want to get to know
-> the type theory take on generic types:
-> [PEP 484](https://www.python.org/dev/peps/pep-0483/#generic-types),
+> the [type theory take on generic types](https://www.python.org/dev/peps/pep-0483/#generic-types).
 
 Test-driven development of runtime generics with inheritance and variance.
 
