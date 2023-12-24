@@ -1,5 +1,5 @@
 
-# runtime_generics [![skeleton](https://img.shields.io/badge/61eeffb-skeleton?label=%F0%9F%92%80%20bswck/skeleton&labelColor=black&color=grey&link=https%3A//github.com/bswck/skeleton)](https://github.com/bswck/skeleton/tree/61eeffb)
+# runtime_generics [![skeleton](https://img.shields.io/badge/fe6ed23-skeleton?label=%F0%9F%92%80%20bswck/skeleton&labelColor=black&color=grey&link=https%3A//github.com/bswck/skeleton)](https://github.com/bswck/skeleton/tree/fe6ed23)
 [![Package version](https://img.shields.io/pypi/v/runtime-generics?label=PyPI)](https://pypi.org/project/runtime-generics/)
 [![Supported Python versions](https://img.shields.io/pypi/pyversions/runtime-generics.svg?logo=python&label=Python)](https://pypi.org/project/runtime-generics/)
 
@@ -31,9 +31,9 @@ poetry add runtime-generics
 ## For contributors
 
 <!--
-This section was generated from bswck/skeleton@61eeffb.
+This section was generated from bswck/skeleton@fe6ed23.
 Instead of changing this particular file, you might want to alter the template:
-https://github.com/bswck/skeleton/tree/61eeffb/fragments/readme.md
+https://github.com/bswck/skeleton/tree/fe6ed23/fragments/readme.md
 -->
 
 !!! Note
