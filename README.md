@@ -97,7 +97,7 @@ class D[Z, Y](C[Y]):
 
 
 class E[A, Y](D[A, int]):
-    # TypeVars are not interned (factory constructed),
+    # TypeVar instances are not cached,
     # so Y in this scope is not the same object as Y in D
     pass
 
