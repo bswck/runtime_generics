@@ -10,13 +10,12 @@ Examples
 ```python
 
 >>> # Python 3.8+
-... from __future__ import annotations
-... from typing import Generic, TypeVar
-... from runtime_generics import get_type_arguments, runtime_generic
+>>> from typing import Generic, TypeVar
+>>> from runtime_generics import get_type_arguments, runtime_generic
 ...
-... T = TypeVar("T")
+>>> T = TypeVar("T")
 ...
-... @runtime_generic
+>>> @runtime_generic
 ... class MyGeneric(Generic[T]):
 ...     type_argument: type[T]
 ...
@@ -27,25 +26,25 @@ Examples
 ...     def whoami(cls) -> None:
 ...        print(f"I am {cls}")
 ...
->>> # Python 3.12+
-... from runtime_generics import get_type_arguments, runtime_generic
-...
-... @runtime_generic
-... class MyGeneric[T]:
-...     type_argument: type[T]
-...
-...     def __init__(self) -> None:
-...         (self.type_argument,) = get_type_arguments(self)
-...
-...     @classmethod
-...     def whoami(cls) -> None:
-...         print(f"I am {cls}")
-...
->>> my_generic = MyGeneric[int]()
->>> my_generic.type_argument
-<class 'int'>
->>> my_generic.whoami()
-I am MyGeneric[int]
+
+```python
+# Python 3.12+
+from runtime_generics import get_type_arguments, runtime_generic
+
+@runtime_generic
+class MyGeneric[T]:
+    type_argument: type[T]
+
+    def __init__(self) -> None:
+        (self.type_argument,) = get_type_arguments(self)
+
+    @classmethod
+    def whoami(cls) -> None:
+        print(f"I am {cls}")
+
+my_generic = MyGeneric[int]()
+print(my_generic.type_argument)  # <class 'int'>
+my_generic.whoami()  # I am MyGeneric[int]
 ```
 
 (C) 2024-present Bartosz Sławecki (bswck)
@@ -57,9 +56,7 @@ from __future__ import annotations
 
 from types import MethodType
 from typing import TYPE_CHECKING, Any, TypeVar, overload
-from typing import (  # type: ignore[attr-defined]
-    _GenericAlias as _typing_GenericAlias,
-)
+from typing import _GenericAlias as _typing_GenericAlias  # type: ignore[attr-defined]
 from typing import get_args as _typing_get_args
 
 from typing_extensions import TypeVarTuple
@@ -186,7 +183,7 @@ class _AliasProxy(
         class _ConcreteParentsHook:
             def __init_subclass__(cls) -> None:
                 setattr(cls, _CONCRETE_PARENTS, concrete_parents)
-                cls.__bases__ = mro_entries
+                cls.__bases__ = mro_entries  # TODO(bswck): document side effects  # noqa: TD003, E501
 
         return (*mro_entries, _ConcreteParentsHook)
 
@@ -262,7 +259,7 @@ def runtime_generic(
     ... class Foo:
     ...     pass
     >>> Foo[int]().__args__
-    (int,)
+    (<class 'int'>,)
 
     """
     if cls is None:
@@ -288,8 +285,11 @@ def get_type_arguments(instance: object) -> tuple[type[Any], ...]:
 
     Examples
     --------
+    >>> from typing import Generic, TypeVar
+    >>> T = TypeVar("T")
+    ...
     >>> @runtime_generic
-    ... class Foo[T]:
+    ... class Foo(Generic[T]):
     ...     pass
     >>> args: tuple[type[int]] = get_type_arguments(Foo[int]())
     >>> args
