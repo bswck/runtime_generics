@@ -1,13 +1,8 @@
-# runtime_generics [![skeleton](https://img.shields.io/badge/17ba612-skeleton?label=%F0%9F%92%80%20bswck/skeleton&labelColor=black&color=grey&link=https%3A//github.com/bswck/skeleton)](https://github.com/bswck/skeleton/tree/17ba612) [![Supported Python versions](https://img.shields.io/pypi/pyversions/runtime-generics.svg?logo=python&label=Python)](https://pypi.org/project/runtime-generics/) [![Package version](https://img.shields.io/pypi/v/runtime-generics?label=PyPI)](https://pypi.org/project/runtime-generics/)
+# runtime_generics [![skeleton](https://img.shields.io/badge/0.0.2rc–125–ga2febcf-skeleton?label=%F0%9F%92%80%20bswck/skeleton&labelColor=black&color=grey&link=https%3A//github.com/bswck/skeleton)](https://github.com/bswck/skeleton/tree/0.0.2rc-125-ga2febcf) [![Supported Python versions](https://img.shields.io/pypi/pyversions/runtime-generics.svg?logo=python&label=Python)](https://pypi.org/project/runtime-generics/) [![Package version](https://img.shields.io/pypi/v/runtime-generics?label=PyPI)](https://pypi.org/project/runtime-generics/)
 
 [![Tests](https://github.com/bswck/runtime_generics/actions/workflows/test.yml/badge.svg)](https://github.com/bswck/runtime_generics/actions/workflows/test.yml)
-[![Documentation Status](https://readthedocs.org/projects/runtime-generics/badge/?version=latest)](https://runtime-generics.readthedocs.io/en/latest/?badge=latest)
 [![Coverage](https://coverage-badge.samuelcolvin.workers.dev/bswck/runtime_generics.svg)](https://coverage-badge.samuelcolvin.workers.dev/redirect/bswck/runtime_generics)
-[![License](https://img.shields.io/github/license/bswck/runtime_generics.svg?label=License)](https://github.com/bswck/runtime_generics/blob/HEAD/LICENSE)
-
-[![Poetry](https://img.shields.io/endpoint?url=https://python-poetry.org/badge/v0.json)](https://python-poetry.org/)
-[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
-[![Pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
+[![Documentation Status](https://readthedocs.org/projects/runtime-generics/badge/?version=latest)](https://runtime-generics.readthedocs.io/en/latest/?badge=latest)
 
 Highly into type-safe Python code?
 
@@ -116,36 +111,32 @@ generic_issubclass(E[float, str], C[int])  # True
 generic_issubclass(E[bytearray, str], D[bytearray, int])  # True
 ```
 
+Reuse generic class type arguments at runtime.
 
 # Installation
-
-
-
 You might simply install it with pip:
 
 ```shell
 pip install runtime-generics
 ```
 
-If you use [Poetry](https://python-poetry.org/), then run:
+If you use [Poetry](https://python-poetry.org/), then you might want to run:
 
 ```shell
 poetry add runtime-generics
 ```
 
 ## For contributors
-
+[![Poetry](https://img.shields.io/endpoint?url=https://python-poetry.org/badge/v0.json)](https://python-poetry.org/)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+[![Pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
 <!--
-This section was generated from bswck/skeleton@17ba612.
+This section was generated from bswck/skeleton@0.0.2rc-125-ga2febcf.
 Instead of changing this particular file, you might want to alter the template:
-https://github.com/bswck/skeleton/tree/17ba612/project/README.md.jinja
+https://github.com/bswck/skeleton/tree/0.0.2rc-125-ga2febcf/project/README.md.jinja
 -->
-
 > [!Note]
 > If you use Windows, it is highly recommended to complete the installation in the way presented below through [WSL2](https://learn.microsoft.com/en-us/windows/wsl/install).
-
-
-
 1.  Fork the [runtime_generics repository](https://github.com/bswck/runtime_generics) on GitHub.
 
 1.  [Install Poetry](https://python-poetry.org/docs/#installation).<br/>
@@ -177,12 +168,11 @@ https://github.com/bswck/skeleton/tree/17ba612/project/README.md.jinja
 
     ```shell
     poetry shell
-    pre-commit install --hook-type pre-commit --hook-type pre-push
+    pre-commit install
     ```
 
 For more information on how to contribute, check out [CONTRIBUTING.md](https://github.com/bswck/runtime_generics/blob/HEAD/CONTRIBUTING.md).<br/>
 Always happy to accept contributions! ❤️
-
 
 # Legal info
 © Copyright by Bartosz Sławecki ([@bswck](https://github.com/bswck)).

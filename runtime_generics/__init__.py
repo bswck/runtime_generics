@@ -1,5 +1,5 @@
 """
-runtime_generics — A library for working with runtime generics in Python.
+`runtime_generics` — A library for working with runtime generics in Python.
 
 This library provides a decorator that allows you to mark a class as
 a 'runtime generic': after instantiation, the class will have a `__args__` attribute
@@ -48,13 +48,18 @@ Examples
 I am MyGeneric[int]
 ```
 
+(C) 2024-present Bartosz Sławecki (bswck)
+
+
 """
 
 from __future__ import annotations
 
 from types import MethodType
 from typing import TYPE_CHECKING, Any, TypeVar, overload
-from typing import _GenericAlias as _typing_GenericAlias  # type: ignore[attr-defined]
+from typing import (  # type: ignore[attr-defined]
+    _GenericAlias as _typing_GenericAlias,
+)
 from typing import get_args as _typing_get_args
 
 from typing_extensions import TypeVarTuple
@@ -173,6 +178,7 @@ class _AliasProxy(
             if isinstance(obj, classmethod) and not getattr(obj, _NO_ALIAS_FLAG, False):
                 setattr(origin, name, _ClassMethodProxy(self, obj))
 
+    # https://github.com/astral-sh/ruff/pull/9706
     def __mro_entries__(self, bases: tuple[type[Any], ...]) -> Any:
         mro_entries = super().__mro_entries__(bases)
         concrete_parents = (*getattr(self, _CONCRETE_PARENTS, ()), self)
@@ -257,6 +263,7 @@ def runtime_generic(
     ...     pass
     >>> Foo[int]().__args__
     (int,)
+
     """
     if cls is None:
         return lambda cls: runtime_generic(cls, cascade=cascade)
@@ -287,6 +294,7 @@ def get_type_arguments(instance: object) -> tuple[type[Any], ...]:
     >>> args: tuple[type[int]] = get_type_arguments(Foo[int]())
     >>> args
     (<class 'int'>,)
+
     """
     args = getattr(instance, "__args__", ())
     return tuple(args) if isinstance(args, GenericArgs) else _typing_get_args(args)
@@ -331,5 +339,5 @@ def generic_issubclass(cls_obj: Any, cls: Any) -> bool:
             return False
         return get_type_arguments(cls_obj) == get_type_arguments(cls)
     if isinstance(cls_obj, _typing_GenericAlias):
-        return get_type_arguments(cls_obj) in (cls.__parameters__, (Any,))
+        return get_type_arguments(cls_obj) in {cls.__parameters__, (Any,)}
     return issubclass(cls_obj, cls)

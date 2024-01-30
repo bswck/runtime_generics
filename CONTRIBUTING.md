@@ -1,7 +1,7 @@
 <!--
-This file was generated from bswck/skeleton@17ba612.
+This file was generated from bswck/skeleton@0.0.2rc-125-ga2febcf.
 Instead of changing this particular file, you might want to alter the template:
-https://github.com/bswck/skeleton/tree/17ba612/fragments/contributing.md
+https://github.com/bswck/skeleton/tree/0.0.2rc-125-ga2febcf/fragments/contributing.md
 -->
 # Contributing to [runtime_generics](https://github.com/bswck/runtime_generics) 🎉
 Contributions are very welcome. 🚀
@@ -46,16 +46,12 @@ Ready to contribute? Here's a quick guide on how to set up runtime_generics and 
 
 
 <!--
-This section was generated from bswck/skeleton@17ba612.
+This section was generated from bswck/skeleton@0.0.2rc-125-ga2febcf.
 Instead of changing this particular file, you might want to alter the template:
-https://github.com/bswck/skeleton/tree/17ba612/fragments/guide.md
+https://github.com/bswck/skeleton/tree/0.0.2rc-125-ga2febcf/fragments/guide.md
 -->
-
 > [!Note]
 > If you use Windows, it is highly recommended to complete the installation in the way presented below through [WSL2](https://learn.microsoft.com/en-us/windows/wsl/install).
-
-
-
 1.  Fork the [runtime_generics repository](https://github.com/bswck/runtime_generics) on GitHub.
 
 1.  [Install Poetry](https://python-poetry.org/docs/#installation).<br/>
@@ -87,9 +83,8 @@ https://github.com/bswck/skeleton/tree/17ba612/fragments/guide.md
 
     ```shell
     poetry shell
-    pre-commit install --hook-type pre-commit --hook-type pre-push
+    pre-commit install
     ```
-
 
 1.  Create a branch for local development:
 
