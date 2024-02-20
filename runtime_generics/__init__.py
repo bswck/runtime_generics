@@ -100,8 +100,6 @@ __all__ = (
 
 _NO_ALIAS_FLAG = "__no_alias__"
 
-_GenericClassT = TypeVar("_GenericClassT", bound=Any)
-
 parent_aliases_registry: defaultdict[Any, list[Any]] = defaultdict(list)
 
 
@@ -155,7 +153,7 @@ class _AliasProxy(
 
     def __new__(
         cls,
-        origin: type[_GenericClassT],
+        origin: Any,
         params: tuple[Any, ...],
         _result_type: Any = None,
         **_kwds: Any,
@@ -169,7 +167,7 @@ class _AliasProxy(
 
     def __init__(
         self,
-        origin: type[_GenericClassT],
+        origin: Any,
         params: tuple[Any, ...],
         result_type: Any = None,
         **kwds: Any,
@@ -255,11 +253,11 @@ class _RuntimeGenericDescriptor:
         return _AliasFactory(owner, self.result_type)
 
 
-def _init_runtime_generic(cls: type[_GenericClassT], result_type: Any = None) -> None:
+def _init_runtime_generic(cls: Any, result_type: Any = None) -> None:
     cls.__class_getitem__ = _RuntimeGenericDescriptor(result_type)
 
 
-def runtime_generic_proxy(result_type: _GenericClassT) -> _GenericClassT:
+def runtime_generic_proxy(result_type: Any) -> Any:
     """Create a runtime generic descriptor with a result type."""
     try:
         parameters = result_type.__parameters__
@@ -275,7 +273,7 @@ def runtime_generic_proxy(result_type: _GenericClassT) -> _GenericClassT:
     class _Proxy(Generic[parameters]):  # type: ignore[misc]
         pass
 
-    return cast(_GenericClassT, _Proxy)
+    return cast(Any, _Proxy)
 
 
 def _is_parametrized(cls: Any) -> bool:
@@ -342,7 +340,7 @@ def get_parametrization(generic_alias: Any) -> dict[Any, Any]:
     )
 
 
-def _get_parents(cls: type[_GenericClassT]) -> Iterator[type[_GenericClassT]]:
+def _get_parents(cls: Any) -> Iterator[Any]:
     """Get all parametrized parents of a class."""
     if not _is_parametrized(cls):
         return (yield from parent_aliases_registry[cls])
@@ -361,7 +359,7 @@ def _get_parents(cls: type[_GenericClassT]) -> Iterator[type[_GenericClassT]]:
         )
 
 
-def get_parents(cls: type[_GenericClassT]) -> tuple[type[_GenericClassT], ...]:
+def get_parents(cls: Any) -> tuple[Any, ...]:
     """Get all parametrized parents of a class."""
     return tuple(_get_parents(cls))
 
@@ -403,9 +401,9 @@ def runtime_generic_patch(*objects: Any, stack_offset: int = 2) -> Iterator[None
 
 
 def runtime_generic(
-    cls: type[_GenericClassT],
+    cls: Any,
     result_type: Any = None,
-) -> type[_GenericClassT]:
+) -> Any:
     """
     Mark a class as a runtime generic.
 
