@@ -260,7 +260,15 @@ def _init_runtime_generic(cls: type[_GenericClassT], result_type: Any = None) ->
 
 def runtime_generic_proxy(result_type: _GenericClassT) -> _GenericClassT:
     """Create a runtime generic descriptor with a result type."""
-    parameters = result_type.__parameters__
+    try:
+        parameters = result_type.__parameters__
+    except AttributeError:  # smells like Python 3.9+
+        parameters = tuple(
+            map(
+                TypeVar,
+                map("T".__add__, map(str, range(1, result_type._nparams + 1))),  # noqa: SLF001
+            ),
+        )
 
     @partial(runtime_generic, result_type=result_type)
     class _Proxy(Generic[parameters]):  # type: ignore[misc]

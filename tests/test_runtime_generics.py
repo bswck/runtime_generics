@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Generic, List, TypeVar
+from typing import Any, Generic, Dict, TypeVar
 from typing import get_args as _typing_get_args
 
 from typing_extensions import TypeVarTuple, Unpack
@@ -115,9 +115,9 @@ class HamVariadic(Generic[Unpack[Ts], T], SpamVariadic[Unpack[Ts]], Qux[T]):
     pass
 
 
-with runtime_generic_patch(List):
+with runtime_generic_patch(Dict):
     @runtime_generic
-    class EggsVariadic(Generic[T, T2], List[HamVariadic[T, T2]]):
+    class EggsVariadic(Generic[T, T2], Dict[HamVariadic[T, T2], str]):
         pass
 
 
@@ -146,4 +146,4 @@ def test_get_parents() -> None:
     assert get_parents(SpamVariadic[str, int]) == ()
     assert get_parents(HamVariadic) == (SpamVariadic[Unpack[Ts]], Qux[T])  # type: ignore[valid-type]
     assert get_parents(HamVariadic[float, str, bytes]) == (SpamVariadic[float, str], Qux[bytes])
-    assert get_parents(EggsVariadic[complex, bool]) == (List[HamVariadic[complex, bool]],)
+    assert get_parents(EggsVariadic[complex, bool]) == (Dict[HamVariadic[complex, bool], str],)
