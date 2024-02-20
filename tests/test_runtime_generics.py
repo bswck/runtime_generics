@@ -1,17 +1,18 @@
 from __future__ import annotations
 
-from typing import Any, Generic, TypeVar
+from typing import Any, Generic, List, TypeVar
 from typing import get_args as _typing_get_args
 
-from pytest import raises, warns
 from typing_extensions import TypeVarTuple, Unpack
 
 from runtime_generics import (
-    generic_isinstance,
-    generic_issubclass,
+    get_parents,
     get_type_arguments,
+    get_parametrization,
     no_alias,
+    runtime_generic_patch,
     runtime_generic,
+    runtime_generic_proxy,
 )
 
 T = TypeVar("T")
@@ -29,7 +30,7 @@ class TwoArgGeneric(Generic[T, T2]):
     __args__: tuple[type[T], type[T2]]
 
 
-@runtime_generic(cascade=False)
+@runtime_generic
 class VariadicGeneric(Generic[T, Unpack[Ts]]):
     __args__: tuple[type[Any], ...]
 
@@ -81,26 +82,68 @@ def test_classmethod_alias() -> None:
     assert TestedClass[int].classmethod_without_alias() is TestedClass
 
 
+@runtime_generic
+class Foo(Generic[T]):
+    pass
 
-def test_generic_isinstance() -> None:
+@runtime_generic
+class Bar(Generic[T], Foo[T]):
+    pass
+
+@runtime_generic
+class Biz(Generic[T], Bar[T]):
+    pass
+
+@runtime_generic
+class Baz(Generic[T2], Bar[T2]):
+    pass
+
+@runtime_generic
+class Qux(Generic[T], Biz[T], Baz[T]):
+    pass
+
+@runtime_generic
+class Fred(Generic[T], Bar[int]):
+    pass
+
+@runtime_generic
+class SpamVariadic(Generic[Unpack[Ts]]):
+    pass
+
+@runtime_generic
+class HamVariadic(Generic[Unpack[Ts], T], SpamVariadic[Unpack[Ts]], Qux[T]):
+    pass
+
+
+with runtime_generic_patch(List):
     @runtime_generic
-    class TestedClass(Generic[T]):
+    class EggsVariadic(Generic[T, T2], List[HamVariadic[T, T2]]):
         pass
 
-    assert generic_isinstance(TestedClass[int](), TestedClass[int])
-    assert not generic_isinstance(TestedClass[int](), TestedClass[str])
-    assert generic_isinstance(TestedClass[int](), TestedClass)
+
+def test_get_parametrization() -> None:
+    assert get_parametrization(Foo[int]) == {T: int}
+    assert get_parametrization(Bar[int]) == {T: int}
+    assert get_parametrization(Biz[int]) == {T: int}
+    assert get_parametrization(Baz[int]) == {T2: int}
+    assert get_parametrization(Qux[int]) == {T: int}
+    assert get_parametrization(Fred[int]) == {T: int}
+    assert get_parametrization(Fred[str]) == {T: str}
+    assert get_parametrization(SpamVariadic[str, int]) == {Ts: (str, int)}
+    assert get_parametrization(HamVariadic[float, str, bytes]) == {Ts: (float, str), T: bytes}
+    assert get_parametrization(EggsVariadic[complex, bool]) == {T: complex, T2: bool}
 
 
-def test_generic_issubclass() -> None:
-    @runtime_generic
-    class TestedClass(Generic[T]):
-        pass
-
-    assert generic_issubclass(TestedClass[int], TestedClass[int])
-    assert generic_issubclass(TestedClass[Any], TestedClass)
-    assert not generic_issubclass(int, TestedClass[int])
-    assert not generic_issubclass(TestedClass[int], TestedClass[str])
-    assert not generic_issubclass(TestedClass[int], TestedClass)
-    assert not generic_issubclass(SingleArgGeneric[int], TestedClass)
-    assert not generic_issubclass(SingleArgGeneric[int], TestedClass[int])
+def test_get_parents() -> None:
+    assert get_parents(Foo) == ()
+    assert get_parents(Bar) == (Foo[T],)  # type: ignore[valid-type]
+    assert get_parents(Biz) == (Bar[T],)  # type: ignore[valid-type]
+    assert get_parents(Baz) == (Bar[T2],)  # type: ignore[valid-type]
+    assert get_parents(Qux) == (Biz[T], Baz[T])  # type: ignore[valid-type]
+    assert get_parents(Qux[int]) == (Biz[int], Baz[int])
+    assert get_parents(Fred) == (Bar[int],)
+    assert get_parents(Fred[str]) == (Bar[int],)
+    assert get_parents(SpamVariadic[str, int]) == ()
+    assert get_parents(HamVariadic) == (SpamVariadic[Unpack[Ts]], Qux[T])  # type: ignore[valid-type]
+    assert get_parents(HamVariadic[float, str, bytes]) == (SpamVariadic[float, str], Qux[bytes])
+    assert get_parents(EggsVariadic[complex, bool]) == (List[HamVariadic[complex, bool]],)

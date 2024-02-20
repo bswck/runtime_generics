@@ -54,20 +54,27 @@ my_generic.whoami()  # I am MyGeneric[int]
 
 from __future__ import annotations
 
+import inspect
+from collections import defaultdict
+from contextlib import contextmanager, suppress
+from dataclasses import dataclass
+from functools import partial
+from itertools import islice
 from types import MethodType
-from typing import TYPE_CHECKING, Any, TypeVar, overload
+from typing import TYPE_CHECKING, Any, Generic, TypeVar, cast
 from typing import _GenericAlias as _typing_GenericAlias  # type: ignore[attr-defined]
 from typing import get_args as _typing_get_args
 
-from typing_extensions import TypeVarTuple
+from backframe import map_args_to_identifiers
+from typing_extensions import TypeVarTuple, Unpack
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
+    from collections.abc import Callable, Iterator
 
     from typing_extensions import ParamSpec, Self
 
-    P = ParamSpec("P")
-    R = TypeVar("R")
+    _P = ParamSpec("_P")
+    _R = TypeVar("_R")
 
 try:
     from typing import _TypingEmpty  # type: ignore[attr-defined]
@@ -82,18 +89,20 @@ except ImportError:  # pragma: no cover
 
 
 __all__ = (
-    "generic_isinstance",
-    "generic_issubclass",
     "get_type_arguments",
+    "get_parametrization",
+    "get_parents",
     "no_alias",
+    "runtime_generic_patch",
     "runtime_generic",
+    "runtime_generic_proxy",
 )
 
-
-_CONCRETE_PARENTS = "__concrete_parents__"
 _NO_ALIAS_FLAG = "__no_alias__"
-GenericClass = TypeVar("GenericClass", bound=Any)
-GenericArguments = TypeVarTuple("GenericArguments")
+
+_GenericClassT = TypeVar("_GenericClassT", bound=Any)
+
+parent_aliases_registry: defaultdict[Any, list[Any]] = defaultdict(list)
 
 
 class GenericArgs(tuple):  # type: ignore[type-arg]
@@ -122,7 +131,8 @@ class _ClassMethodProxy:
         )
 
 
-ALIAS_PROXY_INTERNS: dict[tuple[type[Any], GenericArgs], _AliasProxy] = {}
+ALIAS_PROXY_CACHE_MAXSIZE: int = 128
+ALIAS_PROXY_CACHE: dict[tuple[type[Any], GenericArgs], _AliasProxy] = {}
 
 
 def _normalize_generic_args(
@@ -145,47 +155,67 @@ class _AliasProxy(
 
     def __new__(
         cls,
-        origin: type[GenericClass],
+        origin: type[_GenericClassT],
         params: tuple[Any, ...],
+        _result_type: Any = None,
         **_kwds: Any,
     ) -> Self:
         # A factory constructor--returns an existing instance if possible.
         args = _normalize_generic_args(params)
-        self = ALIAS_PROXY_INTERNS.get((origin, args))
+        self = ALIAS_PROXY_CACHE.get((origin, args))
         if self is None:
             self = super().__new__(cls)
         return self
 
     def __init__(
         self,
-        origin: type[GenericClass],
+        origin: type[_GenericClassT],
         params: tuple[Any, ...],
-        *,
-        cascade: bool = True,
+        result_type: Any = None,
         **kwds: Any,
     ) -> None:
         super().__init__(origin, params, **kwds)
-        self.__cascade__ = cascade
         self.__args__ = args = GenericArgs(self.__args__)
-        setattr(self, _CONCRETE_PARENTS, getattr(origin, _CONCRETE_PARENTS, ()))
+        result_type = result_type or self.__origin__
 
-        ALIAS_PROXY_INTERNS[(origin, args)] = self
+        default_factory = partial(_typing_GenericAlias, result_type)
+
+        if isinstance(result_type, type):
+            result_factory = getattr(
+                result_type,
+                "__class_getitem__",
+                None,
+            )
+        else:
+            result_factory = getattr(
+                result_type,
+                "__getitem__",
+                None,
+            )
+
+        if result_factory is None or isinstance(result_factory, _AliasFactory):
+            result_factory = default_factory
+
+        self.__result__ = result_factory(args)
+
+        while len(ALIAS_PROXY_CACHE) > ALIAS_PROXY_CACHE_MAXSIZE:  # pragma: no cover
+            ALIAS_PROXY_CACHE.popitem()
+        ALIAS_PROXY_CACHE[(origin, args)] = self
 
         for name, obj in vars(origin).items():
             if isinstance(obj, classmethod) and not getattr(obj, _NO_ALIAS_FLAG, False):
                 setattr(origin, name, _ClassMethodProxy(self, obj))
 
-    # https://github.com/astral-sh/ruff/pull/9706
     def __mro_entries__(self, bases: tuple[type[Any], ...]) -> Any:
         mro_entries = super().__mro_entries__(bases)
-        concrete_parents = (*getattr(self, _CONCRETE_PARENTS, ()), self)
 
-        class _ConcreteParentsHook:
-            def __init_subclass__(cls) -> None:
-                setattr(cls, _CONCRETE_PARENTS, concrete_parents)
-                cls.__bases__ = mro_entries  # TODO(bswck): document side effects  # noqa: TD003, E501
+        class MROHook:
+            def __init_subclass__(cls: type[Any], **kwds: Any) -> None:
+                super().__init_subclass__(**kwds)
+                parent_aliases_registry[cls].insert(0, self.__result__)
+                cls.__bases__ = mro_entries
 
-        return (*mro_entries, _ConcreteParentsHook)
+        return (*mro_entries, MROHook)
 
     def __call__(self, *args: Any, **kwargs: Any) -> Any:
         origin = self.__origin__
@@ -200,16 +230,21 @@ class _AliasProxy(
         owner: type[object] | None = None,
     ) -> _AliasProxy:
         """Create a copy of the alias proxy with a new owner or new type arguments."""
-        return _AliasProxy(
-            owner or self.__origin__,
-            params or self.__args__,
-            cascade=self.__cascade__,
-        )
+        return _AliasProxy(owner or self.__origin__, params or self.__args__)
 
 
+@dataclass
+class _AliasFactory:
+    owner: type[Any]
+    result_type: Any = None
+
+    def __call__(self, args: tuple[Any, ...]) -> Any:
+        return _AliasProxy(self.owner, args, self.result_type)
+
+
+@dataclass
 class _RuntimeGenericDescriptor:
-    def __init__(self, *, cascade: bool) -> None:
-        self.cascade = cascade
+    result_type: Any = None
 
     def __get__(
         self,
@@ -217,32 +252,152 @@ class _RuntimeGenericDescriptor:
         owner: type[Any],
     ) -> Callable[..., _AliasProxy]:
         # X.__class__ instead of type(X) to honor .__class__ descriptor behavior
-        return lambda args: _AliasProxy(owner, args, cascade=self.cascade)
+        return _AliasFactory(owner, self.result_type)
 
 
-@overload
+def _init_runtime_generic(cls: type[_GenericClassT], result_type: Any = None) -> None:
+    cls.__class_getitem__ = _RuntimeGenericDescriptor(result_type)
+
+
+def runtime_generic_proxy(result_type: _GenericClassT) -> _GenericClassT:
+    """Create a runtime generic descriptor with a result type."""
+    parameters = result_type.__parameters__
+
+    @partial(runtime_generic, result_type=result_type)
+    class _Proxy(Generic[parameters]):  # type: ignore[misc]
+        pass
+
+    return cast(_GenericClassT, _Proxy)
+
+
+def _is_parametrized(cls: Any) -> bool:
+    return hasattr(cls, "__origin__")
+
+
+def _replace_type_arguments_impl(
+    replacements: dict[Any, Any],
+    args: tuple[Any, ...],
+) -> Iterator[Any]:
+    for arg in args:
+        if isinstance(arg, TypeVarTuple):
+            yield from _normalize_generic_args(
+                replacements.get(arg, ()),
+            )
+        elif _is_parametrized(arg):
+            if arg.__origin__ is Unpack:
+                yield from _replace_type_arguments(replacements, arg.__args__)
+            else:
+                yield _typing_GenericAlias(
+                    arg.__origin__,
+                    _replace_type_arguments(replacements, arg.__args__),
+                )
+        else:
+            yield replacements.get(arg, arg)
+
+
+def _replace_type_arguments(
+    replacements: dict[Any, Any],
+    args: tuple[Any, ...],
+) -> tuple[Any, ...]:
+    return tuple(_replace_type_arguments_impl(replacements, args))
+
+
+def _get_parametrization_impl(
+    params: tuple[Any, ...],
+    args: tuple[Any, ...],
+) -> Iterator[tuple[Any, Any]]:
+    if not args:
+        return (yield from ())
+    arg_iter = iter(args)
+    for i, param in enumerate(params):
+        if isinstance(param, TypeVarTuple):
+            # The remaining params are not TypeVarTuples.
+            # Determine how many args to take until the next regular param.
+            take = len(args) - i - len(params[i + 1 :])
+            yield param, tuple(islice(arg_iter, take))
+        else:
+            yield param, next(arg_iter)
+
+
+def _get_parametrization(
+    params: tuple[Any, ...],
+    args: tuple[Any, ...],
+) -> dict[Any, Any]:
+    return dict(_get_parametrization_impl(params, args))
+
+
+def get_parametrization(generic_alias: Any) -> dict[Any, Any]:
+    """Map type parameters to type arguments in a generic alias."""
+    return _get_parametrization(
+        generic_alias.__origin__.__parameters__,
+        get_type_arguments(generic_alias),
+    )
+
+
+def _get_parents(cls: type[_GenericClassT]) -> Iterator[type[_GenericClassT]]:
+    """Get all parametrized parents of a class."""
+    if not _is_parametrized(cls):
+        return (yield from parent_aliases_registry[cls])
+
+    origin, args = cls.__origin__, cls.__args__
+    if not args:
+        return (yield from parent_aliases_registry[origin])
+
+    # Map child type arguments to parent type arguments.
+    params = origin.__parameters__
+    parametrization = _get_parametrization(params, args)
+    parent_aliases: list[_AliasProxy] = parent_aliases_registry[origin]
+    for parent in parent_aliases:
+        yield parent.copy_with(
+            _replace_type_arguments(parametrization, parent.__args__),
+        )
+
+
+def get_parents(cls: type[_GenericClassT]) -> tuple[type[_GenericClassT], ...]:
+    """Get all parametrized parents of a class."""
+    return tuple(_get_parents(cls))
+
+
+@contextmanager
+def runtime_generic_patch(*objects: Any, stack_offset: int = 2) -> Iterator[None]:
+    """Patch `objects` to support runtime generics."""
+    variables = {}
+    with suppress(ValueError, TypeError, RuntimeError):
+        variables = map_args_to_identifiers(
+            *objects,
+            stack_offset=stack_offset + 1,
+            function=runtime_generic_patch,
+        )
+
+    if objects and not variables:
+        msg = (
+            "Failed to resolve objects to patch.\n"
+            "This might have occured on incorrect call to `patch()`.\n"
+            "Call `runtime_generic_patch()` only with explicit identifiers, "
+            "like `runtime_generic_patch(List, Tuple)`."
+        )
+        raise ValueError(msg)
+
+    backframe_globals = inspect.stack()[stack_offset].frame.f_globals
+    previous_state = backframe_globals.copy()
+
+    # fmt: off
+    backframe_globals.update({
+        identifier: runtime_generic_proxy(obj)
+        for identifier, obj in variables.items()
+    })
+    # fmt: on
+
+    try:
+        yield
+    finally:
+        backframe_globals.update(previous_state)
+
+
 def runtime_generic(
-    cls: None = None,
-    *,
-    cascade: bool = ...,
-) -> Callable[[type[GenericClass]], type[GenericClass]]:
-    ...
-
-
-@overload
-def runtime_generic(
-    cls: type[GenericClass],
-    *,
-    cascade: bool = ...,
-) -> type[GenericClass]:
-    ...
-
-
-def runtime_generic(
-    cls: type[GenericClass] | None = None,
-    *,
-    cascade: bool = True,
-) -> type[GenericClass] | Callable[[type[GenericClass]], type[GenericClass]]:
+    cls: type[_GenericClassT],
+    result_type: Any = None,
+) -> type[_GenericClassT]:
     """
     Mark a class as a runtime generic.
 
@@ -255,17 +410,16 @@ def runtime_generic(
 
     Examples
     --------
+    >>> from typing import Generic, TypeVar
+    >>> T = TypeVar("T")
     >>> @runtime_generic
-    ... class Foo:
+    ... class Foo(Generic[T]):
     ...     pass
     >>> Foo[int]().__args__
     (<class 'int'>,)
 
     """
-    if cls is None:
-        return lambda cls: runtime_generic(cls, cascade=cascade)
-    descriptor = _RuntimeGenericDescriptor(cascade=cascade)
-    cls.__class_getitem__ = descriptor
+    _init_runtime_generic(cls, result_type=result_type)
     return cls
 
 
@@ -300,44 +454,7 @@ def get_type_arguments(instance: object) -> tuple[type[Any], ...]:
     return tuple(args) if isinstance(args, GenericArgs) else _typing_get_args(args)
 
 
-def no_alias(cls_method: Callable[P, R]) -> Callable[P, R]:
+def no_alias(cls_method: Callable[_P, _R]) -> Callable[_P, _R]:
     """Mark a classmethod as not being passed a generic alias in place of cls."""
     cls_method.__no_alias__ = True  # type: ignore[attr-defined]
     return cls_method
-
-
-def generic_isinstance(obj: object, cls: Any) -> bool:
-    """
-    Perform an `isinstance()` check on a runtime generic.
-
-    Currently only invariant type arguments are supported, without argument inheritance.
-    """
-    # Not defining __instancecheck__() is intentional.
-    # Using isinstance() with a parametrized runtime generic
-    # would result in a type error, even when the custom subclass of GenericAlias
-    # implements __instancecheck__() correctly.
-    if get_type_arguments(obj) == get_type_arguments(cls):
-        return issubclass(obj.__class__, cls.__origin__)
-    return generic_issubclass(obj.__class__, cls)
-
-
-def generic_issubclass(cls_obj: Any, cls: Any) -> bool:
-    """
-    Perform an `issubclass()` check on a runtime generic.
-
-    Currently only invariant type arguments are supported, without argument inheritance.
-    """
-    # Not defining __subclasscheck__() is intentional.
-    # Using issubclass() with a parametrized runtime generic
-    # would result in a type error, even when the custom subclass of GenericAlias
-    # implements __subclasscheck__() correctly.
-    if isinstance(cls, _typing_GenericAlias):
-        if isinstance(cls_obj, _typing_GenericAlias) and not issubclass(
-            cls_obj.__origin__,
-            cls.__origin__,
-        ):
-            return False
-        return get_type_arguments(cls_obj) == get_type_arguments(cls)
-    if isinstance(cls_obj, _typing_GenericAlias):
-        return get_type_arguments(cls_obj) in {cls.__parameters__, (Any,)}
-    return issubclass(cls_obj, cls)

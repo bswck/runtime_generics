@@ -12,7 +12,6 @@ to generic classes before instantiation.
 The library does three things:
 - makes it possible to retrieve the type arguments passed to the generic class at runtime
   before the class was instantiated;
-- supports basic instance/subclass checking of runtime generic classes;
 - given a parametrized generic class (generic alias),
   it makes every class method use generic alias `cls` instead of the origin class.
 
@@ -63,55 +62,6 @@ my_generic = MyGeneric[int]()
 assert my_generic.type_argument is int
 my_generic.whoami()  # I am MyGeneric[int]
 ```
-
-# TDD section
-> [!Note]
-> Before you read this, you might want to get to know
-> the [type theory take on generic types](https://www.python.org/dev/peps/pep-0483/#generic-types).
-
-Test-driven development of runtime generics with inheritance and variance.
-
-
-```py
-# Considering the following hierarchy:
-class A[T]:
-    pass
-
-
-class B[T](A[T]):
-    pass
-
-
-class C[X](B[int]):
-    pass
-
-
-class D[Z, Y](C[Y]):
-    pass
-
-
-class E[A, Y](D[A, int]):
-    # TypeVar instances are not cached,
-    # so Y in this scope is not the same object as Y in D
-    pass
-
-
-class F[T, *Ts](D[T, *Ts]):  # What then???
-    pass
-
-
-# We want the following results:
-generic_issubclass(B[int], A[int])  # True
-generic_issubclass(B, A[int])  # False
-generic_issubclass(B[int], A[str])  # False
-generic_issubclass(C[str], B[int])  # True
-generic_issubclass(C, B[int])  # True
-generic_issubclass(D[float, str], C[str])  # True
-generic_issubclass(E[float, str], C[int])  # True
-generic_issubclass(E[bytearray, str], D[bytearray, int])  # True
-```
-
-Reuse generic class type arguments at runtime.
 
 # Installation
 You might simply install it with pip:
