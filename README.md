@@ -13,7 +13,10 @@ The library does three things:
 - makes it possible to retrieve the type arguments passed to the generic class at runtime
   before the class was instantiated;
 - given a parametrized generic class (generic alias),
-  it makes every class method use generic alias `cls` instead of the origin class.
+  it makes every class method use generic alias `cls` instead of the origin class;
+- offers facilities to find how parent classes are parametrized,
+  so e.g. if `Foo[T]` inherits from `Dict[str, T]`,
+  find that `Dict[str, int]` is a parent for `Foo[int]`.
 
 # A simple example
 3.12+ ([PEP 695](https://peps.python.org/pep-0695) syntax):
