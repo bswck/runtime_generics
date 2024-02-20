@@ -28,6 +28,7 @@ Examples
 ...     def whoami(cls) -> None:
 ...        print(f"I am {cls}")
 ...
+```
 
 ```python
 # Python 3.12+
