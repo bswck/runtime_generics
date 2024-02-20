@@ -1,6 +1,6 @@
-# This file was generated from bswck/skeleton@0.0.2rc-125-ga2febcf.
+# This file was generated from bswck/skeleton@0.0.2rc-149-gaad3c42.
 # Instead of changing this particular file, you might want to alter the template:
-# https://github.com/bswck/skeleton/tree/0.0.2rc-125-ga2febcf/project/.github/workflows/lint.yml.jinja
+# https://github.com/bswck/skeleton/tree/0.0.2rc-149-gaad3c42/project/.github/workflows/lint.yml.jinja
 
 # IMPORTANT!
 # Pinned versions of actions and Poetry are managed in a different repository.
@@ -25,4 +25,4 @@ jobs:
     - name: "Install the project"
       run: "poetry install --only=dev,dev-skeleton"
     - name: "Analyze the code with Ruff"
-      run: "ruff check ."
+      run: "poetry run ruff check ."

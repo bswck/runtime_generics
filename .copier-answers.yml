@@ -1,4 +1,4 @@
-_commit: 0.0.2rc-125-ga2febcf
+_commit: 0.0.2rc-149-gaad3c42
 _src_path: gh:bswck/skeleton
 author: bswck
 cli: false
@@ -12,9 +12,10 @@ package: runtime_generics
 precommit: true
 pypi: true
 pypi_description: Reuse generic class type arguments at runtime.
-pypi_project_name: runtime-generics
+pypi_project: runtime-generics
 pypy: true
 python: '3.8'
+python_max: '4.0'
 repo: runtime_generics
 rtd: runtime-generics
 tests: true

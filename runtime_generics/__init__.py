@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+# (C) 2024-present Bartosz Sławecki (bswck)
 """
 `runtime_generics` — A library for working with runtime generics in Python.
 
@@ -47,11 +49,8 @@ print(my_generic.type_argument)  # <class 'int'>
 my_generic.whoami()  # I am MyGeneric[int]
 ```
 
-(C) 2024-present Bartosz Sławecki (bswck)
-
 
 """
-
 from __future__ import annotations
 
 import inspect
