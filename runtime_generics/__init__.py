@@ -28,6 +28,7 @@ Examples
 ...     def whoami(cls) -> None:
 ...        print(f"I am {cls}")
 ...
+
 ```
 
 ```python
@@ -100,6 +101,7 @@ __all__ = (
 
 _NO_ALIAS_FLAG = "__no_alias__"
 
+unique_mro_entries: dict[type[Any], Any] = {}
 parent_aliases_registry: defaultdict[Any, list[Any]] = defaultdict(list)
 
 
@@ -206,14 +208,9 @@ class _AliasProxy(
 
     def __mro_entries__(self, bases: tuple[type[Any], ...]) -> Any:
         mro_entries = super().__mro_entries__(bases)
-
-        class MROHook:
-            def __init_subclass__(cls: type[Any], **kwds: Any) -> None:
-                super().__init_subclass__(**kwds)
-                parent_aliases_registry[cls].insert(0, self.__result__)
-                cls.__bases__ = mro_entries
-
-        return (*mro_entries, MROHook)
+        unique_mro_entry = type(f"__{id(self):x}_runtime_generic_mro_entry__", (), {})
+        unique_mro_entries[unique_mro_entry] = self
+        return (*mro_entries, unique_mro_entry)
 
     def __call__(self, *args: Any, **kwargs: Any) -> Any:
         origin = self.__origin__
@@ -251,10 +248,6 @@ class _RuntimeGenericDescriptor:
     ) -> Callable[..., _AliasProxy]:
         # X.__class__ instead of type(X) to honor .__class__ descriptor behavior
         return _AliasFactory(owner, self.result_type)
-
-
-def _init_runtime_generic(cls: Any, result_type: Any = None) -> None:
-    cls.__class_getitem__ = _RuntimeGenericDescriptor(result_type)
 
 
 def runtime_generic_proxy(result_type: Any) -> Any:
@@ -400,10 +393,19 @@ def runtime_generic_patch(*objects: Any, stack_offset: int = 2) -> Iterator[None
         backframe_globals.update(previous_state)
 
 
+def _init_runtime_generic(cls: Any, result_type: Any = None) -> None:
+    cls.__class_getitem__ = _RuntimeGenericDescriptor(result_type)
+    for unique_mro_entry, parent_cls in unique_mro_entries.copy().items():
+        if unique_mro_entry in cls.__bases__:
+            parametrized_parent = parent_cls.__result__
+            parent_aliases_registry[cls].append(parametrized_parent)
+            del unique_mro_entries[unique_mro_entry]
+
+
 def runtime_generic(
-    cls: Any,
+    cls: _R,
     result_type: Any = None,
-) -> Any:
+) -> _R:
     """
     Mark a class as a runtime generic.
 
@@ -416,6 +418,7 @@ def runtime_generic(
 
     Examples
     --------
+    ```python
     >>> from typing import Generic, TypeVar
     >>> T = TypeVar("T")
     >>> @runtime_generic
@@ -423,6 +426,8 @@ def runtime_generic(
     ...     pass
     >>> Foo[int]().__args__
     (<class 'int'>,)
+
+    ```
 
     """
     _init_runtime_generic(cls, result_type=result_type)
@@ -445,6 +450,7 @@ def get_type_arguments(instance: object) -> tuple[type[Any], ...]:
 
     Examples
     --------
+    ```python
     >>> from typing import Generic, TypeVar
     >>> T = TypeVar("T")
     ...
@@ -454,6 +460,8 @@ def get_type_arguments(instance: object) -> tuple[type[Any], ...]:
     >>> args: tuple[type[int]] = get_type_arguments(Foo[int]())
     >>> args
     (<class 'int'>,)
+
+    ```
 
     """
     args = getattr(instance, "__args__", ())
