@@ -216,6 +216,7 @@ class _AliasProxy(
         origin = self.__origin__
         instance: Any = origin.__new__(origin, *args, **kwargs)
         instance.__args__ = self.__args__
+        instance.__origin__ = self.__origin__
         instance.__init__(*args, **kwargs)
         return instance
 
