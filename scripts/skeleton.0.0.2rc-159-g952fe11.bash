@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # (C) 2023–present Bartosz Sławecki (bswck)
 #
-# Interact with bswck/skeleton (current version: https://github.com/bswck/skeleton/tree/0.0.2rc-149-gaad3c42).
+# Interact with bswck/skeleton (current version: https://github.com/bswck/skeleton/tree/0.0.2rc-159-g952fe11).
 #
-# This file was generated from bswck/skeleton@0.0.2rc-149-gaad3c42.
+# This file was generated from bswck/skeleton@0.0.2rc-159-g952fe11.
 # Instead of changing this particular file, you might want to alter the template:
-# https://github.com/bswck/skeleton/tree/0.0.2rc-149-gaad3c42/project/scripts/skeleton.%7B%7Bsref%7D%7D.bash.jinja
+# https://github.com/bswck/skeleton/tree/0.0.2rc-159-g952fe11/project/scripts/skeleton.%7B%7Bsref%7D%7D.bash.jinja
 #
 # Usage:
 #
@@ -28,7 +28,7 @@ set -eEuo pipefail
 TEMPFILE=$(mktemp)
 
 curl "https://raw.githubusercontent.com/bswck/skeleton/HEAD/setup.bash" > "$TEMPFILE"
-trap 'rm -f "$TEMPFILE"' EXIT
+trap 'builtin command rm -f "$TEMPFILE"' EXIT
 
 # shellcheck disable=SC1090
 source "$TEMPFILE"
@@ -126,32 +126,32 @@ make_context() {
 	)
 	export SKELETON_REF
 	SKELETON_REF=$(cat <<- 'EOF'
-		0.0.2rc-149-gaad3c42
+		0.0.2rc-159-g952fe11
 	EOF
 	)
 	export SREF
 	SREF=$(cat <<- 'EOF'
-		0.0.2rc-149-gaad3c42
+		0.0.2rc-159-g952fe11
 	EOF
 	)
 	export SKELETON_REV
 	SKELETON_REV=$(cat <<- 'EOF'
-		https://github.com/bswck/skeleton/tree/0.0.2rc-149-gaad3c42
+		https://github.com/bswck/skeleton/tree/0.0.2rc-159-g952fe11
 	EOF
 	)
 	export SREV
 	SREV=$(cat <<- 'EOF'
-		https://github.com/bswck/skeleton/tree/0.0.2rc-149-gaad3c42
+		https://github.com/bswck/skeleton/tree/0.0.2rc-159-g952fe11
 	EOF
 	)
 	export SKELETON_AND_REF
 	SKELETON_AND_REF=$(cat <<- 'EOF'
-		bswck/skeleton@0.0.2rc-149-gaad3c42
+		bswck/skeleton@0.0.2rc-159-g952fe11
 	EOF
 	)
 	export SNREF
 	SNREF=$(cat <<- 'EOF'
-		bswck/skeleton@0.0.2rc-149-gaad3c42
+		bswck/skeleton@0.0.2rc-159-g952fe11
 	EOF
 	)
 	export GH_REPO_ARGS
@@ -164,7 +164,7 @@ make_context() {
 		jq -n '{"deployment_branch_policy": {"protected_branches": false,"custom_branch_policies": true}}' | gh api -H "Accept: application/vnd.github+json" -X PUT "/repos/bswck/runtime_generics/environments/$1" --silent --input -
 	EOF
 	)
-    export LAST_REF="0.0.2rc-149-gaad3c42"
+    export LAST_REF="0.0.2rc-159-g952fe11"
     export PROJECT_PATH_KEY="$$_skeleton_project_path"
     export NEW_REF_KEY="$$_skeleton_new_ref"
     export LAST_LICENSE_NAME="MIT"
