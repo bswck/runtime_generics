@@ -255,6 +255,9 @@ def runtime_generic_proxy(result_type: Any) -> Any:
     try:
         parameters = result_type.__parameters__
     except AttributeError:  # smells like Python 3.9+
+        if result_type.__module__ != "typing":
+            msg = f"can't get generic signature of {result_type!r}"
+            raise TypeError(msg) from None
         parameters = tuple(
             map(
                 TypeVar,
