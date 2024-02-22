@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: MIT
 # (C) 2024-present Bartosz Sławecki (bswck)
 """
-`runtime_generics` — A library for working with runtime generics in Python.
+`runtime_generics`.
 
 This library provides a decorator that allows you to mark a class as
 a 'runtime generic': after instantiation, the class will have a `__args__` attribute
@@ -26,7 +26,7 @@ Examples
 ...
 ...     @classmethod
 ...     def whoami(cls) -> None:
-...        print(f"I am {cls}")
+...         print(f"I am {cls}")
 ...
 
 ```
@@ -377,7 +377,7 @@ def runtime_generic_patch(*objects: Any, stack_offset: int = 2) -> Iterator[None
             "Failed to resolve objects to patch.\n"
             "This might have occured on incorrect call to `patch()`.\n"
             "Call `runtime_generic_patch()` only with explicit identifiers, "
-            "like `runtime_generic_patch(List, Tuple)`."
+            "like `runtime_generic_patch(List, gTuple)`."
         )
         raise ValueError(msg)
 
@@ -416,9 +416,6 @@ def runtime_generic(
     This is a class decorator that dynamically adds a `__class_getitem__` descriptor
     to the class. This method returns a callable that takes type arguments and returns
     a new instance of the class with the `__args__` attribute set to the type arguments.
-
-    If `cascade` is `True`, the `__class_getitem__` descriptor will be added to all
-    subclasses of the decorated class as they are created.
 
     Examples
     --------
