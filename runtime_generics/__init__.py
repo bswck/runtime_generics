@@ -60,7 +60,7 @@ from collections import defaultdict
 from contextlib import contextmanager, suppress
 from dataclasses import dataclass
 from functools import partial
-from itertools import islice
+from itertools import islice, takewhile
 from types import MethodType
 from typing import TYPE_CHECKING, Any, Generic, TypeVar, cast
 from typing import _GenericAlias as _typing_GenericAlias  # type: ignore[attr-defined]
@@ -100,6 +100,7 @@ __all__ = (
 )
 
 _NO_ALIAS_FLAG = "__no_alias__"
+_MRO_ENTRY_SLUG = "_runtime_generic_mro_entry_"
 
 unique_mro_entries: dict[type[Any], Any] = {}
 parent_aliases_registry: defaultdict[Any, list[Any]] = defaultdict(list)
@@ -145,6 +146,16 @@ def _normalize_generic_args(
         () if arg is _TypingEmpty else ... if arg is _TypingEllipsis else arg
         for arg in args
     )
+
+
+def runtime_generic_init(
+    self: Any,
+    args: tuple[Any, ...],
+    origin: Any,
+) -> None:
+    """Initialize a runtime generic instance."""
+    vars(self).setdefault("__args__", args)
+    vars(self).setdefault("__origin__", origin)
 
 
 class _AliasProxy(
@@ -207,16 +218,25 @@ class _AliasProxy(
                 setattr(origin, name, _ClassMethodProxy(self, obj))
 
     def __mro_entries__(self, bases: tuple[type[Any], ...]) -> Any:
-        mro_entries = super().__mro_entries__(bases)
-        unique_mro_entry = type(f"__{id(self):x}_runtime_generic_mro_entry__", (), {})
+        mro_entries_iter = iter(super().__mro_entries__(bases))
+        mro_entries = (
+            *takewhile(
+                lambda mro_entry: not mro_entry.__name__.startswith(_MRO_ENTRY_SLUG),
+                mro_entries_iter,
+            ),
+        )
+        unique_mro_entry = type(
+            _MRO_ENTRY_SLUG + f"{id(self):x}",
+            (*mro_entries_iter,),
+            {},
+        )
         unique_mro_entries[unique_mro_entry] = self
-        return (*mro_entries, unique_mro_entry)
+        return *mro_entries, unique_mro_entry
 
     def __call__(self, *args: Any, **kwargs: Any) -> Any:
         origin = self.__origin__
         instance: Any = origin.__new__(origin, *args, **kwargs)
-        instance.__args__ = self.__args__
-        instance.__origin__ = self.__origin__
+        runtime_generic_init(instance, args=self.__args__, origin=self.__origin__)
         instance.__init__(*args, **kwargs)
         return instance
 
@@ -255,7 +275,7 @@ def runtime_generic_proxy(result_type: Any) -> Any:
     """Create a runtime generic descriptor with a result type."""
     try:
         parameters = result_type.__parameters__
-    except AttributeError:  # smells like Python 3.9+
+    except AttributeError:  # Smells like Python 3.9+
         if result_type.__module__ != "typing":
             msg = f"can't get generic signature of {result_type!r}"
             raise TypeError(msg) from None
@@ -340,7 +360,11 @@ def get_parametrization(generic_alias: Any) -> dict[Any, Any]:
 def _get_parents(cls: Any) -> Iterator[Any]:
     """Get all parametrized parents of a class."""
     if not _is_parametrized(cls):
-        return (yield from parent_aliases_registry[cls])
+        return (
+            yield from parent_aliases_registry[
+                cls if isinstance(cls, type) else cls.__class__
+            ]
+        )
 
     origin, args = cls.__origin__, cls.__args__
     if not args:
@@ -362,7 +386,7 @@ def get_parents(cls: Any) -> tuple[Any, ...]:
 
 
 @contextmanager
-def runtime_generic_patch(*objects: Any, stack_offset: int = 2) -> Iterator[None]:
+def runtime_generic_patch(*objects: object, stack_offset: int = 2) -> Iterator[None]:
     """Patch `objects` to support runtime generics."""
     variables = {}
     with suppress(ValueError, TypeError, RuntimeError):
@@ -375,9 +399,9 @@ def runtime_generic_patch(*objects: Any, stack_offset: int = 2) -> Iterator[None
     if objects and not variables:
         msg = (
             "Failed to resolve objects to patch.\n"
-            "This might have occured on incorrect call to `patch()`.\n"
+            "This might have occured on incorrect call to `runtime_generic_patch()`.\n"
             "Call `runtime_generic_patch()` only with explicit identifiers, "
-            "like `runtime_generic_patch(List, gTuple)`."
+            "like `runtime_generic_patch(List, Tuple)`."
         )
         raise ValueError(msg)
 
@@ -397,7 +421,7 @@ def runtime_generic_patch(*objects: Any, stack_offset: int = 2) -> Iterator[None
         backframe_globals.update(previous_state)
 
 
-def _init_runtime_generic(cls: Any, result_type: Any = None) -> None:
+def _setup_runtime_generic(cls: Any, result_type: Any = None) -> None:
     cls.__class_getitem__ = _RuntimeGenericDescriptor(result_type)
     for unique_mro_entry, parent_cls in unique_mro_entries.copy().items():
         if unique_mro_entry in cls.__bases__:
@@ -431,7 +455,7 @@ def runtime_generic(
     ```
 
     """
-    _init_runtime_generic(cls, result_type=result_type)
+    _setup_runtime_generic(cls, result_type=result_type)
     return cls
 
 
