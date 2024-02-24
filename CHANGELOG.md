@@ -7,6 +7,14 @@ This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html
 
 <!-- insertion marker -->
 
+## [v3.0.5](https://github.com/bswck/runtime_generics/tree/v3.0.5) (2024-02-24)
+
+
+### Added
+
+- Wide support for resolving parametrized parents of runtime generic classes as well as instances of them.
+
+
 ## [v3.0.4](https://github.com/bswck/runtime_generics/tree/v3.0.4) (2024-02-22)
 
 
