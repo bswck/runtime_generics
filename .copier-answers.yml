@@ -1,4 +1,4 @@
-_commit: 0.0.2rc-165-ga9a4d91
+_commit: 0.0.2rc-166-gf236e83
 _src_path: gh:bswck/skeleton
 author: bswck
 cli: false
@@ -19,5 +19,6 @@ python_until: '4.0'
 repo: runtime_generics
 rtd: runtime-generics
 tests: true
+tidelift: false
 visibility: public
 wip: false
