@@ -137,7 +137,9 @@ ALIAS_PROXY_CACHE: dict[tuple[type[Any], GenericArgs], _AliasProxy] = {}
 
 
 def _normalize_generic_args(
-    args: type[Any] | tuple[Any, ...],
+    # I remember `typing.Type[CT_co]`; should be fine to annotate as `type[object]`.
+    # `tuple[...]` params are also covariant.
+    args: type[object] | tuple[object, ...],
 ) -> GenericArgs:
     """Normalize type arguments to a canonical form."""
     if not isinstance(args, tuple):
@@ -149,9 +151,9 @@ def _normalize_generic_args(
 
 
 def runtime_generic_init(
-    self: Any,
-    args: tuple[Any, ...],
-    origin: Any,
+    self: object,
+    args: tuple[object, ...],
+    origin: object,
 ) -> None:
     """Initialize a runtime generic instance."""
     vars(self).setdefault("__args__", args)
@@ -293,12 +295,15 @@ def runtime_generic_proxy(result_type: Any) -> Any:
     return cast(Any, _Proxy)
 
 
-def _is_parametrized(cls: Any) -> bool:
+def _is_parametrized(cls: object) -> bool:
+    # If you're thinking about making a typing.Protocol
+    # for typing this as a TypeGuard, I assure you I thought
+    # about that too and it's not worth it.
     return hasattr(cls, "__origin__")
 
 
 def _replace_type_arguments_impl(
-    replacements: dict[Any, Any],
+    replacements: dict[object, Any],
     args: tuple[Any, ...],
 ) -> Iterator[Any]:
     for arg in args:
@@ -326,8 +331,8 @@ def _replace_type_arguments(
 
 
 def _get_parametrization_impl(
-    params: tuple[Any, ...],
-    args: tuple[Any, ...],
+    params: tuple[object, ...],
+    args: tuple[object, ...],
 ) -> Iterator[tuple[Any, Any]]:
     if not args:
         return (yield from ())
@@ -358,7 +363,7 @@ def get_parametrization(generic_alias: Any) -> dict[Any, Any]:
 
 
 def _get_parents(cls: Any) -> Iterator[Any]:
-    """Get all parametrized parents of a class."""
+    """Get all parametrized parents of a runtime generic class or instance."""
     if not _is_parametrized(cls):
         return (
             yield from parent_aliases_registry[
@@ -381,7 +386,7 @@ def _get_parents(cls: Any) -> Iterator[Any]:
 
 
 def get_parents(cls: Any) -> tuple[Any, ...]:
-    """Get all parametrized parents of a class."""
+    """Get all parametrized parents of a runtime generic class or instance."""
     return tuple(_get_parents(cls))
 
 
