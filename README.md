@@ -3,6 +3,7 @@
 [![Tests](https://github.com/bswck/runtime_generics/actions/workflows/test.yml/badge.svg)](https://github.com/bswck/runtime_generics/actions/workflows/test.yml)
 [![Coverage](https://coverage-badge.samuelcolvin.workers.dev/bswck/runtime_generics.svg)](https://coverage-badge.samuelcolvin.workers.dev/redirect/bswck/runtime_generics)
 [![Documentation Status](https://readthedocs.org/projects/runtime-generics/badge/?version=latest)](https://runtime-generics.readthedocs.io/en/latest/?badge=latest)
+[![Lifted?](https://tidelift.com/badges/package/pypi/runtime-generics)](https://tidelift.com/subscription/pkg/pypi-runtime-generics?utm_source=pypi-runtime-generics&utm_medium=readme)
 
 Highly into type-safe Python code?
 
@@ -65,6 +66,18 @@ my_generic = MyGeneric[int]()
 assert my_generic.type_argument is int
 my_generic.whoami()  # I am MyGeneric[int]
 ```
+
+# For enterprise
+Available as part of the Tidelift Subscription.
+
+This project and the maintainers of thousands of other packages are working with Tidelift to deliver one enterprise subscription that covers all of the open source you use.
+
+[Learn more here](https://tidelift.com/subscription/pkg/pypi-runtime-generics?utm_source=pypi-runtime-generics&utm_medium=referral&utm_campaign=github).
+
+## Security contact information
+To report a security vulnerability, please use the
+[Tidelift security contact](https://tidelift.com/security).<br>
+Tidelift will coordinate the fix and disclosure.
 
 # Installation
 You might simply install it with pip:

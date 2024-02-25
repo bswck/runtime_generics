@@ -19,6 +19,6 @@ python_until: '4.0'
 repo: runtime_generics
 rtd: runtime-generics
 tests: true
-tidelift: false
+tidelift: true
 visibility: public
 wip: false
