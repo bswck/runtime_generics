@@ -665,7 +665,7 @@ def _inner_type_check(  # noqa: PLR0911
 
 def type_check(subtype: Any, cls: Any) -> bool:
     """
-    Examine whether a runtime generic is a of another runtime generic.
+    Examine whether a runtime generic is a valid subtype of another runtime generic.
 
     Variance is supported. TypeVar bounds are not yet supported.
 
