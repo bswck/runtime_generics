@@ -44,18 +44,6 @@ keyring = "^24.3.0"
 [tool.pytest.ini_options]
 addopts = "--doctest-modules"
 
-
-
-
-
-
-
-
-
-
-
-
-
 [tool.poetry.group.docs]
 optional = true
 
