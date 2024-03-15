@@ -352,7 +352,7 @@ def _get_parents(cls: Any) -> Iterator[Any]:
     if not _has_origin(cls):
         return (
             yield from map(
-                _default_alias_or,
+                get_alias,
                 parent_aliases_registry[
                     cls if isinstance(cls, type) else cls.__class__
                 ],
@@ -362,7 +362,7 @@ def _get_parents(cls: Any) -> Iterator[Any]:
     sig = _get_generic_signature(cls)
     origin, args = cls.__origin__, cls.__args__
     if not args:
-        return (yield from map(_default_alias_or, parent_aliases_registry[origin]))
+        return (yield from map(get_alias, parent_aliases_registry[origin]))
 
     # Map child type arguments to parent type arguments.
     params = sig.__args__
@@ -409,7 +409,7 @@ def _c3_merge(sequences: list[list[Any]]) -> list[Any]:
 def _get_mro(cls: Any) -> list[Any]:
     return _c3_merge(
         [
-            [_default_alias_or(cls)],
+            [get_alias(cls)],
             *map(_get_mro, parents := get_parents(cls)),
             [*parents],
         ],
@@ -452,20 +452,50 @@ def _get_default_alias(cls: Any) -> Any:
     return _AliasProxy(orig, anys)
 
 
-def _default_alias_or(cls: Any) -> Any:
+def get_alias(rg: Any) -> Any:
+    """
+    For any runtime generic (class, instance), find the most relevant generic alias.
+
+    Parameters
+    ----------
+    rg
+        Any form of a runtime generic.
+
+    Examples
+    --------
+    ```py
+    >>> from typing import Generic, TypeVar
+    >>> T = TypeVar("T")
+    ...
+    >>> @runtime_generic
+    ... class Foo(Generic[T]):
+    ...     pass
+    ...
+    >>> get_alias(Foo)
+    runtime_generics.Foo[typing.Any]
+    >>> get_alias(Foo())
+    runtime_generics.Foo[typing.Any]
+    >>> get_alias(Foo[int])
+    runtime_generics.Foo[int]
+    >>> get_alias(Foo[int]())
+    runtime_generics.Foo[int]
+
+    ```
+
+    """
     try:
-        args = cls.__args__
+        args = rg.__args__
     except AttributeError:
-        return _get_default_alias(cls)
+        return _get_default_alias(rg)
     else:
         if any(
             _has_origin(arg) and arg.__origin__ is Unpack or isinstance(arg, TypeVar)
             for arg in args
         ):
-            return _get_default_alias(cls)
-    if cls.__module__ == "typing" and cls._name:
-        return _AliasProxy(getattr(typing, cls._name), cls.__args__)
-    return _AliasProxy(cls.__origin__, cls.__args__)
+            return _get_default_alias(rg)
+    if rg.__module__ == "typing" and rg._name:  # noqa: SLF001
+        return _AliasProxy(getattr(typing, rg._name), rg.__args__)  # noqa: SLF001
+    return _AliasProxy(rg.__origin__, rg.__args__)
 
 
 @contextmanager
@@ -689,8 +719,8 @@ def type_check(subtype: Any, cls: Any) -> bool:
         Whether `subtype` is a valid subtype of `cls`.
 
     """
-    subtype = _default_alias_or(subtype)
-    cls = _default_alias_or(cls)
+    subtype = get_alias(subtype)
+    cls = get_alias(cls)
 
     for mro_entry in get_mro(subtype):
         if mro_entry.__origin__ == cls.__origin__:

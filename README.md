@@ -12,7 +12,7 @@ to generic classes before instantiation.
 
 The library does four things:
 - makes it possible to retrieve the type arguments passed to the generic class at runtime
-  before the class was instantiated;
+  before the class was instantiated: `get_type_arguments()`, `get_alias()`;
 - given a parametrized generic class (generic alias),
   makes every class method use generic alias `cls` instead of the origin class
   (unless decorated with `@no_alias`);
@@ -26,23 +26,45 @@ The library does four things:
 # A simple example
 3.12+ ([PEP 695](https://peps.python.org/pep-0695) syntax):
 ```python
-from runtime_generics import get_type_arguments, runtime_generic
+from __future__ import annotations
+
+import io
+from typing import TYPE_CHECKING
+
+from runtime_generics import get_alias, get_type_arguments, runtime_generic, type_check
+
+if TYPE_CHECKING:
+    from typing import IO, Literal, overload
+
 
 @runtime_generic
-class MyGeneric[T]:
-    type_argument: type[T]
+class IOWrapper[T: str | bytes]:
+    data_type: type[T]
 
-    def __init__(self) -> None:
-        (self.type_argument,) = get_type_arguments(self)
+    def __init__(self, stream: IO[T]) -> None:
+        (self.data_type,) = get_type_arguments(self)
+        self.stream = stream
+
+    if TYPE_CHECKING:
+        @overload
+        def is_binary(self: IOWrapper[bytes]) -> Literal[True]: ...
+
+        @overload
+        def is_binary(self: IOWrapper[str]) -> Literal[False]: ...
+
+    def is_binary(self) -> bool:
+        # alternatively here: `self.type_argument == bytes`
+        return type_check(self, IOWrapper[bytes])
 
     @classmethod
-    def whoami(cls) -> None:
-        print(f"I am {cls}")
+    def __repr__(self) -> str:
+        return f"<{get_alias(self)} object at ...>"
 
-my_generic = MyGeneric[int]()
-assert my_generic.type_argument is int
-my_generic.whoami()  # I am MyGeneric[int]
 
+my_binary_data = IOWrapper[bytes](io.BytesIO(b"foo"))
+assert my_binary_data.data_type is bytes
+assert my_binary_data.is_binary()
+assert repr(IOWrapper[str](io.StringIO(""))) == "<__main__.IOWrapper[str] object at ...>"
 ```
 
 3.8+:
@@ -50,25 +72,45 @@ my_generic.whoami()  # I am MyGeneric[int]
 ```python
 from __future__ import annotations
 
-from typing import Generic, TypeVar
-from runtime_generics import get_type_arguments, runtime_generic
+import io
+from typing import TYPE_CHECKING
 
-T = TypeVar("T")
+from runtime_generics import get_alias, get_type_arguments, runtime_generic
+
+if TYPE_CHECKING:
+    from typing import IO, Literal, overload
+
+T = TypeVar("T", str, bytes)
+
 
 @runtime_generic
-class MyGeneric(Generic[T]):
-    type_argument: type[T]
+class IOWrapper(Generic[T]):
+    data_type: type[T]
 
-    def __init__(self) -> None:
-        (self.type_argument,) = get_type_arguments(self)
+    def __init__(self, stream: IO[T]) -> None:
+        (self.data_type,) = get_type_arguments(self)
+        self.stream = stream
+
+    if TYPE_CHECKING:
+        @overload
+        def is_binary(self: IOWrapper[bytes]) -> Literal[True]: ...
+
+        @overload
+        def is_binary(self: IOWrapper[str]) -> Literal[False]: ...
+
+    def is_binary(self) -> bool:
+        # alternatively here: `self.type_argument == bytes`
+        return type_check(self, IOWrapper[bytes])
 
     @classmethod
-    def whoami(cls) -> None:
-        print(f"I am {cls}")
+    def __repr__(self) -> str:
+        return f"<{get_alias(self)} object at ...>"
 
-my_generic = MyGeneric[int]()
-assert my_generic.type_argument is int
-my_generic.whoami()  # I am MyGeneric[int]
+
+my_binary_data = IOWrapper[bytes](io.BytesIO(b"foo"))
+assert my_binary_data.data_type is bytes
+assert my_binary_data.is_binary()
+assert repr(IOWrapper[str](io.StringIO(""))) == "<__main__.IOWrapper[str] object at ...>"
 ```
 
 # For enterprise
