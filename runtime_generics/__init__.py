@@ -723,7 +723,7 @@ def type_check(subtype: Any, cls: Any) -> bool:
     cls = get_alias(cls)
 
     for mro_entry in get_mro(subtype):
-        if mro_entry.__origin__ == cls.__origin__:
+        if mro_entry.__origin__ is cls.__origin__:
             mro_entry_parametrization = get_parametrization(mro_entry)
             cls_parametrization = get_parametrization(cls)
             sig = _get_generic_signature(cls)
@@ -748,6 +748,7 @@ def type_check(subtype: Any, cls: Any) -> bool:
                         cls_args,
                     ),
                 ):
-                    return False
-            return True
+                    break
+            else:
+                return True
     return False
