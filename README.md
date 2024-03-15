@@ -56,7 +56,6 @@ class IOWrapper[T: str | bytes]:
         # alternatively here: `self.type_argument == bytes`
         return type_check(self, IOWrapper[bytes])
 
-    @classmethod
     def __repr__(self) -> str:
         return f"<{get_alias(self)} object at ...>"
 
@@ -73,9 +72,9 @@ assert repr(IOWrapper[str](io.StringIO(""))) == "<__main__.IOWrapper[str] object
 from __future__ import annotations
 
 import io
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Generic, TypeVar
 
-from runtime_generics import get_alias, get_type_arguments, runtime_generic
+from runtime_generics import get_alias, get_type_arguments, runtime_generic, type_check
 
 if TYPE_CHECKING:
     from typing import IO, Literal, overload
@@ -102,7 +101,6 @@ class IOWrapper(Generic[T]):
         # alternatively here: `self.type_argument == bytes`
         return type_check(self, IOWrapper[bytes])
 
-    @classmethod
     def __repr__(self) -> str:
         return f"<{get_alias(self)} object at ...>"
 
