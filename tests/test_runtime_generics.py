@@ -6,13 +6,13 @@ from typing import get_args as _typing_get_args
 from typing_extensions import TypeVarTuple, Unpack
 
 from runtime_generics import (
+    get_mro,
     get_parents,
     get_type_arguments,
     get_parametrization,
     no_alias,
     runtime_generic_patch,
     runtime_generic,
-    runtime_generic_proxy,
 )
 
 T = TypeVar("T")
@@ -86,29 +86,36 @@ def test_classmethod_alias() -> None:
 class Foo(Generic[T]):
     pass
 
+
 @runtime_generic
 class Bar(Generic[T], Foo[T]):
     pass
+
 
 @runtime_generic
 class Biz(Generic[T], Bar[T]):
     pass
 
+
 @runtime_generic
 class Baz(Generic[T2], Bar[T2]):
     pass
 
+
 @runtime_generic
-class Qux(Generic[T], Biz[T], Baz[T]):
+class Qux(Generic[T], Biz[str], Baz[T]):
     pass
+
 
 @runtime_generic
 class Fred(Generic[T], Bar[int]):
     pass
 
+
 @runtime_generic
 class SpamVariadic(Generic[Unpack[Ts]]):
     pass
+
 
 @runtime_generic
 class HamVariadic(Generic[Unpack[Ts], T], SpamVariadic[Unpack[Ts]], Qux[T]):
@@ -116,6 +123,7 @@ class HamVariadic(Generic[Unpack[Ts], T], SpamVariadic[Unpack[Ts]], Qux[T]):
 
 
 with runtime_generic_patch(Dict):
+
     @runtime_generic
     class EggsVariadic(Generic[T, T2], Dict[HamVariadic[T, T2], str]):
         pass
@@ -131,9 +139,7 @@ def test_get_parametrization() -> None:
     assert gp(Fred[bool]) == gp(Fred[bool]()) == {T: bool}
     assert gp(Fred[str]) == gp(Fred[str]()) == {T: str}
     assert (
-        gp(SpamVariadic[str, int])
-        == gp(SpamVariadic[str, int]())
-        == {Ts: (str, int)}
+        gp(SpamVariadic[str, int]) == gp(SpamVariadic[str, int]()) == {Ts: (str, int)}
     )
     assert (
         gp(HamVariadic[float, str, bytes])
@@ -148,20 +154,18 @@ def test_get_parametrization() -> None:
 
 
 def test_get_parents() -> None:
-    gps = get_parents  # I think I would travel to Tibet. How about you?
+    gps = get_parents
     assert gps(Foo) == gps(Foo()) == ()
-    assert gps(Bar) == gps(Bar()) == (Foo[T],)  # type: ignore[valid-type]
-    assert gps(Biz) == gps(Biz()) == (Bar[T],)  # type: ignore[valid-type]
-    assert gps(Baz) == gps(Baz()) == (Bar[T2],)  # type: ignore[valid-type]
-    assert gps(Qux) == gps(Qux()) == (Biz[T], Baz[T])  # type: ignore[valid-type]
-    assert gps(Qux[int]) == gps(Qux[int]()) == (Biz[int], Baz[int])
+    assert gps(Bar) == gps(Bar()) == (Foo[Any],)
+    assert gps(Biz) == gps(Biz()) == (Bar[Any],)
+    assert gps(Baz) == gps(Baz()) == (Bar[Any],)
+    assert gps(Qux) == gps(Qux()) == (Biz[str], Baz[Any])
+    assert gps(Qux[int]) == gps(Qux[int]()) == (Biz[str], Baz[int])
     assert gps(Fred) == gps(Fred()) == (Bar[int],)
     assert gps(Fred[str]) == gps(Fred[str]()) == (Bar[int],)
     assert gps(SpamVariadic[str, int]) == gps(SpamVariadic[str, int]()) == ()
     assert (
-        gps(HamVariadic)
-        == gps(HamVariadic())
-        == (SpamVariadic[Unpack[Ts]], Qux[T])  # type: ignore[valid-type]
+        gps(HamVariadic) == gps(HamVariadic()) == (SpamVariadic[()], Qux[Any])
     )
     assert (
         gps(HamVariadic[float, str, bytes])
@@ -172,4 +176,30 @@ def test_get_parents() -> None:
         gps(EggsVariadic[complex, bool])
         == gps(EggsVariadic[complex, bool]())
         == (Dict[HamVariadic[complex, bool], str],)
+    )
+
+
+def test_get_mro() -> None:
+    hvp = HamVariadic[float, str, bytes]
+    assert get_mro(hvp) == get_mro(hvp()) == (
+        HamVariadic[float, str, bytes],
+        SpamVariadic[float, str],
+        Qux[bytes],
+        Biz[str],
+        Bar[str],
+        Foo[str],
+        Baz[bytes],
+        Bar[bytes],
+        Foo[bytes],
+    )
+    assert get_mro(HamVariadic()) == (
+        HamVariadic[Any],
+        SpamVariadic[()],
+        Qux[Any],
+        Biz[str],
+        Bar[str],
+        Foo[str],
+        Baz[Any],
+        Bar[Any],
+        Foo[Any],
     )

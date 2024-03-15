@@ -53,6 +53,7 @@ my_generic.whoami()  # I am MyGeneric[int]
 
 
 """
+
 from __future__ import annotations
 
 import inspect
@@ -275,18 +276,7 @@ class _RuntimeGenericDescriptor:
 
 def runtime_generic_proxy(result_type: Any) -> Any:
     """Create a runtime generic descriptor with a result type."""
-    try:
-        parameters = result_type.__parameters__
-    except AttributeError:  # Smells like Python 3.9+
-        if result_type.__module__ != "typing":
-            msg = f"can't get generic signature of {result_type!r}"
-            raise TypeError(msg) from None
-        parameters = tuple(
-            map(
-                TypeVar,
-                map("T".__add__, map(str, range(1, result_type._nparams + 1))),  # noqa: SLF001
-            ),
-        )
+    parameters = _get_generic_signature(result_type).__parameters__
 
     @partial(runtime_generic, result_type=result_type)
     class _Proxy(Generic[parameters]):  # type: ignore[misc]
@@ -295,7 +285,7 @@ def runtime_generic_proxy(result_type: Any) -> Any:
     return cast(Any, _Proxy)
 
 
-def _is_parametrized(cls: object) -> bool:
+def _has_origin(cls: object) -> bool:
     # If you're thinking about making a typing.Protocol
     # for typing this as a TypeGuard, I assure you I thought
     # about that too and it's not worth it.
@@ -311,7 +301,7 @@ def _replace_type_arguments_impl(
             yield from _normalize_generic_args(
                 replacements.get(arg, ()),
             )
-        elif _is_parametrized(arg):
+        elif _has_origin(arg):
             if arg.__origin__ is Unpack:
                 yield from _replace_type_arguments(replacements, arg.__args__)
             else:
@@ -320,7 +310,10 @@ def _replace_type_arguments_impl(
                     _replace_type_arguments(replacements, arg.__args__),
                 )
         else:
-            yield replacements.get(arg, arg)
+            replaced = replacements.get(arg, arg)
+            if isinstance(replaced, TypeVar):
+                replaced = Any
+            yield replaced
 
 
 def _replace_type_arguments(
@@ -354,31 +347,39 @@ def _get_parametrization(
     return dict(_get_parametrization_impl(params, args))
 
 
-def get_parametrization(generic_alias: Any) -> dict[Any, Any]:
+def get_parametrization(runtime_generic: Any) -> dict[Any, Any]:
     """Map type parameters to type arguments in a generic alias."""
     return _get_parametrization(
-        generic_alias.__origin__.__parameters__,
-        get_type_arguments(generic_alias),
+        (
+            runtime_generic.__origin__
+            if _has_origin(runtime_generic)
+            else runtime_generic
+        ).__parameters__,
+        get_type_arguments(runtime_generic),
     )
 
 
 def _get_parents(cls: Any) -> Iterator[Any]:
     """Get all parametrized parents of a runtime generic class or instance."""
-    if not _is_parametrized(cls):
+    if not _has_origin(cls):
         return (
-            yield from parent_aliases_registry[
-                cls if isinstance(cls, type) else cls.__class__
-            ]
+            yield from map(
+                _default_alias_or,
+                parent_aliases_registry[
+                    cls if isinstance(cls, type) else cls.__class__
+                ],
+            )
         )
 
     origin, args = cls.__origin__, cls.__args__
     if not args:
-        return (yield from parent_aliases_registry[origin])
+        return (yield from map(_default_alias_or, parent_aliases_registry[origin]))
 
     # Map child type arguments to parent type arguments.
     params = origin.__parameters__
     parametrization = _get_parametrization(params, args)
     parent_aliases: list[_AliasProxy] = parent_aliases_registry[origin]
+
     for parent in parent_aliases:
         yield parent.copy_with(
             _replace_type_arguments(parametrization, parent.__args__),
@@ -390,10 +391,91 @@ def get_parents(cls: Any) -> tuple[Any, ...]:
     return tuple(_get_parents(cls))
 
 
+def _c3_merge(sequences: list[list[Any]]) -> list[Any]:
+    # Adopted from functools.
+    result: list[Any] = []
+    while True:
+        # Purge empty sequences.
+        sequences = [seq for seq in sequences if seq]
+        if not sequences:
+            return result
+        for seq_1 in sequences:  # Find merge candidates among sequence heads.
+            candidate = seq_1[0]
+            for seq_2 in sequences:
+                if candidate in seq_2[1:]:
+                    candidate = None
+                    break  # Reject the current head, it appears in a tail!
+            else:
+                break
+        if candidate is None:
+            msg = "Inconsistent hierarchy"
+            raise RuntimeError(msg)
+        result.append(candidate)
+        # Remove the chosen candidate.
+        for seq in sequences:
+            if seq[0] == candidate:
+                del seq[0]
+
+
+def _get_mro(cls: Any) -> list[Any]:
+    return _c3_merge(
+        [
+            [_default_alias_or(cls)],
+            *map(_get_mro, parents := get_parents(cls)),
+            [*parents],
+        ],
+    )
+
+
+def get_mro(cls: Any) -> tuple[Any, ...]:
+    """Get all parametrized parents of a runtime generic using the C3 algorithm."""
+    return tuple(_get_mro(cls))
+
+
+def _get_generic_signature(cls: Any) -> Any:
+    if cls.__module__ == "typing":
+        try:
+            parameters = cls.__parameters__
+        except AttributeError:
+            # Smells like Python 3.9+ ;)
+            conjured_typevars = map("T".__add__, map(str, range(1, cls._nparams + 1)))
+            parameters = tuple(map(TypeVar, conjured_typevars))
+        return _AliasProxy(cls, parameters)
+    if _has_origin(cls):
+        origin = cls.__origin__
+        return _AliasProxy(origin, origin.__parameters__)
+    return _AliasProxy(cls if isinstance(cls, type) else type(cls), cls.__parameters__)
+
+
+def _get_default_alias(cls: Any) -> Any:
+    sig = _get_generic_signature(cls)
+    orig = sig.__origin__
+    params = sig.__parameters__
+    anys = (Any,) * (
+        len(params) - any(isinstance(param, TypeVarTuple) for param in params)
+    )
+    return _AliasProxy(orig, anys)
+
+
+def _default_alias_or(cls: Any) -> Any:
+    try:
+        args = cls.__args__
+    except AttributeError:
+        return _get_default_alias(cls)
+    else:
+        if any(
+            _has_origin(arg) and arg.__origin__ is Unpack or isinstance(arg, TypeVar)
+            for arg in args
+        ):
+            return _get_default_alias(cls)
+    return _AliasProxy(cls.__origin__, cls.__args__)
+
+
 @contextmanager
 def runtime_generic_patch(*objects: object, stack_offset: int = 2) -> Iterator[None]:
     """Patch `objects` to support runtime generics."""
     variables = {}
+
     with suppress(ValueError, TypeError, RuntimeError):
         variables = map_args_to_identifiers(
             *objects,
@@ -451,9 +533,11 @@ def runtime_generic(
     ```python
     >>> from typing import Generic, TypeVar
     >>> T = TypeVar("T")
+    ...
     >>> @runtime_generic
     ... class Foo(Generic[T]):
     ...     pass
+    ...
     >>> Foo[int]().__args__
     (<class 'int'>,)
 
@@ -464,19 +548,19 @@ def runtime_generic(
     return cls
 
 
-def get_type_arguments(instance: object) -> tuple[type[Any], ...]:
+def get_type_arguments(rg: object) -> tuple[type[Any], ...]:
     """
-    Get all type arguments of a runtime generic instance.
+    Get all type arguments of a runtime generic.
 
     Parameters
     ----------
-    instance
-        An instance of a class that was decorated with `@runtime_generic`.
+    rg
+        An class that was decorated with `@runtime_generic` or its instance.
 
     Returns
     -------
     args
-        The type arguments of the instance.
+        The type arguments of the examined runtime generic.
 
     Examples
     --------
@@ -494,7 +578,7 @@ def get_type_arguments(instance: object) -> tuple[type[Any], ...]:
     ```
 
     """
-    args = getattr(instance, "__args__", ())
+    args = getattr(rg, "__args__", ())
     return tuple(args) if isinstance(args, GenericArgs) else _typing_get_args(args)
 
 
