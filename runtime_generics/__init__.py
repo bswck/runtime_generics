@@ -108,6 +108,8 @@ _MRO_ENTRY_SLUG = "_runtime_generic_mro_entry_"
 
 unique_mro_entries: dict[type[Any], Any] = {}
 parent_aliases_registry: defaultdict[Any, list[Any]] = defaultdict(list)
+
+# I bet we won't get a memory leak here.
 _typevar_cache: dict[str, Any] = {}
 
 
