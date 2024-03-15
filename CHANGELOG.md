@@ -20,7 +20,7 @@ This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html
 
 ### Fixed
 
-- Updated documentation that contained obsolete information. ([#53685890](https://github.com/bswck/runtime_generics/issues/53685890))
+- Updated documentation that contained obsolete information.
 
 
 ## [v3.0.3](https://github.com/bswck/runtime_generics/tree/v3.0.3) (2024-02-22)
