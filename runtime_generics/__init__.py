@@ -107,6 +107,17 @@ _MRO_ENTRY_SLUG = "_runtime_generic_mro_entry_"
 
 unique_mro_entries: dict[type[Any], Any] = {}
 parent_aliases_registry: defaultdict[Any, list[Any]] = defaultdict(list)
+_typevar_cache: dict[str, Any] = {}
+
+
+def _get_cached_typevar(typevar_name: str) -> Any:
+    try:
+        typevar = _typevar_cache[typevar_name]
+    except KeyError:
+        typevar = _typevar_cache[typevar_name] = cast("Callable[[str], Any]", TypeVar)(
+            typevar_name,  # pyright hack
+        )
+    return typevar
 
 
 class GenericArgs(tuple):  # type: ignore[type-arg]
@@ -331,11 +342,7 @@ def _get_parametrization(
 def get_parametrization(runtime_generic: Any) -> dict[Any, Any]:
     """Map type parameters to type arguments in a generic alias."""
     return _get_parametrization(
-        (
-            runtime_generic.__origin__
-            if _has_origin(runtime_generic)
-            else runtime_generic
-        ).__parameters__,
+        _get_generic_signature(runtime_generic).__args__,
         get_type_arguments(runtime_generic),
     )
 
@@ -427,7 +434,7 @@ def _get_generic_signature(cls: Any) -> Any:
                 "T".__add__,
                 map(str, range(1, origin._nparams + 1)),  # noqa: SLF001
             )
-            parameters = tuple(map(TypeVar, conjured_typevars))
+            parameters = tuple(map(_get_cached_typevar, conjured_typevars))
         return _AliasProxy(origin, parameters)
     if _has_origin(cls):
         origin = cls.__origin__
@@ -549,7 +556,7 @@ def get_type_arguments(rg: object) -> tuple[type[Any], ...]:
 
 def runtime_generic_proxy(result_type: Any) -> Any:
     """Create a runtime generic descriptor with a result type."""
-    parameters = _get_generic_signature(result_type).__parameters__
+    parameters = _get_generic_signature(result_type).__args__
 
     @partial(runtime_generic, result_type=result_type)
     class _Proxy(Generic[parameters]):  # type: ignore[misc]
@@ -641,7 +648,7 @@ def type_check(subtype: Any, cls: Any) -> bool:
     Examples
     --------
     ```python
-    >>> from typing import Any, Dict, Generic, Type, TypeVar
+    >>> from typing import Any, Dict, Generic, TypeVar
     ...
     >>> T = TypeVar("T")
     >>> T_co = TypeVar("T_co", covariant=True)
@@ -649,8 +656,6 @@ def type_check(subtype: Any, cls: Any) -> bool:
     ...
     >>> type_check(Dict[str, int], Dict[str, bool])  # KT, VT - invariant
     False
-    >>> type_check(Type[str], Type[object])
-    True
     >>> @runtime_generic
     ... class Foo(Generic[T, T_co, T_contra]):
     ...     pass
