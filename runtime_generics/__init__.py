@@ -57,6 +57,7 @@ my_generic.whoami()  # I am MyGeneric[int]
 from __future__ import annotations
 
 import inspect
+import typing
 from collections import defaultdict
 from contextlib import contextmanager, suppress
 from dataclasses import dataclass
@@ -456,7 +457,7 @@ def _default_alias_or(cls: Any) -> Any:
         ):
             return _get_default_alias(cls)
     if cls.__module__ == "typing" and cls._name:
-        return _AliasProxy(getattr(__import__("typing"), cls._name), cls.__args__)
+        return _AliasProxy(getattr(typing, cls._name), cls.__args__)
     return _AliasProxy(cls.__origin__, cls.__args__)
 
 
