@@ -10,14 +10,18 @@ Highly into type-safe Python code?
 _runtime_generics_ is a niche Python library that allows you to reuse type arguments explicitly passed at runtime
 to generic classes before instantiation.
 
-The library does three things:
+The library does four things:
 - makes it possible to retrieve the type arguments passed to the generic class at runtime
   before the class was instantiated;
 - given a parametrized generic class (generic alias),
-  it makes every class method use generic alias `cls` instead of the origin class;
-- offers facilities to find how parent classes are parametrized,
-  so e.g. if `Foo[T]` inherits from `Dict[str, T]`,
-  find that `Dict[str, int]` is a parent for `Foo[int]`.
+  makes every class method use generic alias `cls` instead of the origin class
+  (unless decorated with `@no_alias`);
+- offers facilities to find how parent classes are parametrized (
+  e.g. if `Foo[T]` inherits from `Dict[str, T]`,
+  finds that `Dict[str, int]` is a parent for `Foo[int]`
+  ): `get_parents()`;
+- exposes utilities that allow to inspect C3-linearized MROs of runtime generics
+  and type-check them with variance support: `get_mro()`, `type_check()`.
 
 # A simple example
 3.12+ ([PEP 695](https://peps.python.org/pep-0695) syntax):
