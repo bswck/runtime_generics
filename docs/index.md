@@ -1,4 +1,3 @@
-
 # runtime_generics [![skeleton](https://img.shields.io/badge/0.0.2rc–166–gf236e83-skeleton?label=%F0%9F%92%80%20bswck/skeleton&labelColor=black&color=grey&link=https%3A//github.com/bswck/skeleton)](https://github.com/bswck/skeleton/tree/0.0.2rc-166-gf236e83) [![Supported Python versions](https://img.shields.io/pypi/pyversions/runtime-generics.svg?logo=python&label=Python)](https://pypi.org/project/runtime-generics/) [![Package version](https://img.shields.io/pypi/v/runtime-generics?label=PyPI)](https://pypi.org/project/runtime-generics/)
 
 [![Tests](https://github.com/bswck/runtime_generics/actions/workflows/test.yml/badge.svg)](https://github.com/bswck/runtime_generics/actions/workflows/test.yml)
@@ -12,20 +11,22 @@ _runtime_generics_ is a niche Python library that allows you to reuse type argum
 to generic classes before instantiation.
 
 The library does four things:
+
+- exposes utilities that allow to inspect C3-linearized MROs of runtime generics
+  and type-check them with variance support: `get_mro()`, `type_check()`;
 - makes it possible to retrieve the type arguments passed to the generic class at runtime
   before the class was instantiated: `get_type_arguments()`, `get_alias()`;
-- given a parametrized generic class (generic alias),
-  makes every class method use generic alias `cls` instead of the origin class
-  (unless decorated with `@no_alias`);
 - offers facilities to find how parent classes are parametrized (
   e.g. if `Foo[T]` inherits from `Dict[str, T]`,
   finds that `Dict[str, int]` is a parent for `Foo[int]`
   ): `get_parents()`;
-- exposes utilities that allow to inspect C3-linearized MROs of runtime generics
-  and type-check them with variance support: `get_mro()`, `type_check()`.
+- given a parametrized generic class (generic alias),
+  makes every class method use generic alias `cls` instead of the origin class
+  (unless decorated with `@no_alias`).
 
 # A simple example
 3.12+ ([PEP 695](https://peps.python.org/pep-0695) syntax):
+
 ```python
 from __future__ import annotations
 

@@ -11,17 +11,17 @@ _runtime_generics_ is a niche Python library that allows you to reuse type argum
 to generic classes before instantiation.
 
 The library does four things:
+- exposes utilities that allow to inspect C3-linearized MROs of runtime generics
+  and type-check them with variance support: `get_mro()`, `type_check()`;
 - makes it possible to retrieve the type arguments passed to the generic class at runtime
   before the class was instantiated: `get_type_arguments()`, `get_alias()`;
-- given a parametrized generic class (generic alias),
-  makes every class method use generic alias `cls` instead of the origin class
-  (unless decorated with `@no_alias`);
 - offers facilities to find how parent classes are parametrized (
   e.g. if `Foo[T]` inherits from `Dict[str, T]`,
   finds that `Dict[str, int]` is a parent for `Foo[int]`
   ): `get_parents()`;
-- exposes utilities that allow to inspect C3-linearized MROs of runtime generics
-  and type-check them with variance support: `get_mro()`, `type_check()`.
+- given a parametrized generic class (generic alias),
+  makes every class method use generic alias `cls` instead of the origin class
+  (unless decorated with `@no_alias`).
 
 # A simple example
 3.12+ ([PEP 695](https://peps.python.org/pep-0695) syntax):
