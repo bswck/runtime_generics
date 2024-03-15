@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import pytest
 from typing import Any, Generic, Dict, TypeVar
 from typing import get_args as _typing_get_args
 
@@ -13,10 +14,12 @@ from runtime_generics import (
     no_alias,
     runtime_generic_patch,
     runtime_generic,
+    type_check,
 )
 
 T = TypeVar("T")
-T2 = TypeVar("T2")
+T2_co = TypeVar("T2_co", covariant=True)
+T2_contra = TypeVar("T2_contra", contravariant=True)
 Ts = TypeVarTuple("Ts")
 
 
@@ -26,8 +29,13 @@ class SingleArgGeneric(Generic[T]):
 
 
 @runtime_generic
-class TwoArgGeneric(Generic[T, T2]):
-    __args__: tuple[type[T], type[T2]]
+class TwoArgGeneric(Generic[T, T2_co], SingleArgGeneric[T]):
+    __args__: tuple[type[T], type[T2_co]]  # type: ignore[assignment]
+
+
+@runtime_generic
+class TwoArgGenericContra(Generic[T, T2_contra], SingleArgGeneric[T]):
+    __args__: tuple[type[T], type[T2_contra]]  # type: ignore[assignment]
 
 
 @runtime_generic
@@ -98,7 +106,7 @@ class Biz(Generic[T], Bar[T]):
 
 
 @runtime_generic
-class Baz(Generic[T2], Bar[T2]):
+class Baz(Generic[T2_co], Bar[int]):
     pass
 
 
@@ -125,7 +133,7 @@ class HamVariadic(Generic[Unpack[Ts], T], SpamVariadic[Unpack[Ts]], Qux[T]):
 with runtime_generic_patch(Dict):
 
     @runtime_generic
-    class EggsVariadic(Generic[T, T2], Dict[HamVariadic[T, T2], str]):
+    class EggsVariadic(Generic[T, T2_co], Dict[HamVariadic[T, T2_co], str]):
         pass
 
 
@@ -134,7 +142,7 @@ def test_get_parametrization() -> None:
     assert gp(Foo[int]) == gp(Foo[int]()) == {T: int}
     assert gp(Bar[float]) == gp(Bar[float]()) == {T: float}
     assert gp(Biz[bytes]) == gp(Biz[bytes]()) == {T: bytes}
-    assert gp(Baz[complex]) == gp(Baz[complex]()) == {T2: complex}
+    assert gp(Baz[complex]) == gp(Baz[complex]()) == {T2_co: complex}
     assert gp(Qux[int]) == gp(Qux[int]()) == {T: int}
     assert gp(Fred[bool]) == gp(Fred[bool]()) == {T: bool}
     assert gp(Fred[str]) == gp(Fred[str]()) == {T: str}
@@ -149,7 +157,7 @@ def test_get_parametrization() -> None:
     assert (
         gp(EggsVariadic[complex, bool])
         == gp(EggsVariadic[complex, bool]())
-        == {T: complex, T2: bool}
+        == {T: complex, T2_co: bool}
     )
 
 
@@ -158,7 +166,7 @@ def test_get_parents() -> None:
     assert gps(Foo) == gps(Foo()) == ()
     assert gps(Bar) == gps(Bar()) == (Foo[Any],)
     assert gps(Biz) == gps(Biz()) == (Bar[Any],)
-    assert gps(Baz) == gps(Baz()) == (Bar[Any],)
+    assert gps(Baz) == gps(Baz()) == (Bar[int],)
     assert gps(Qux) == gps(Qux()) == (Biz[str], Baz[Any])
     assert gps(Qux[int]) == gps(Qux[int]()) == (Biz[str], Baz[int])
     assert gps(Fred) == gps(Fred()) == (Bar[int],)
@@ -189,8 +197,8 @@ def test_get_mro() -> None:
         Bar[str],
         Foo[str],
         Baz[bytes],
-        Bar[bytes],
-        Foo[bytes],
+        Bar[int],
+        Foo[int],
     )
     assert get_mro(HamVariadic()) == (
         HamVariadic[Any],
@@ -200,6 +208,30 @@ def test_get_mro() -> None:
         Bar[str],
         Foo[str],
         Baz[Any],
-        Bar[Any],
-        Foo[Any],
+        Bar[int],
+        Foo[int],
     )
+
+
+@pytest.mark.parametrize(
+    "subtype,cls,passes",
+    (
+        (TwoArgGeneric[str, int], SingleArgGeneric[str], True),
+        (TwoArgGeneric[str, int], SingleArgGeneric[Any], True),
+        (TwoArgGeneric[str, Any], SingleArgGeneric[Any], True),
+        (TwoArgGeneric[Any, int], SingleArgGeneric[Any], True),
+        (TwoArgGeneric[int, bool], TwoArgGeneric[int, int], True),
+        (TwoArgGeneric[int, Any], TwoArgGeneric[int, int], True),
+        (TwoArgGeneric[int, int], TwoArgGeneric[int, bool], False),
+        (TwoArgGeneric[int, Any], TwoArgGeneric[int, bool], True),
+        (TwoArgGenericContra[int, int], TwoArgGenericContra[int, bool], True),
+        (TwoArgGenericContra[int, bool], TwoArgGenericContra[int, int], False),
+        (TwoArgGeneric[int, int], TwoArgGeneric[bool, int], False),
+        (TwoArgGeneric[Any, int], TwoArgGeneric[bool, int], True),
+    )
+)
+def test_type_check(subtype: Any, cls: Any, passes: bool) -> None:
+    assert type_check(subtype, cls) is passes
+    assert type_check(subtype(), cls) is passes
+    assert type_check(subtype, cls()) is passes
+    assert type_check(subtype(), cls()) is passes

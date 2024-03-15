@@ -98,6 +98,7 @@ __all__ = (
     "runtime_generic_patch",
     "runtime_generic",
     "runtime_generic_proxy",
+    "type_check",
 )
 
 _NO_ALIAS_FLAG = "__no_alias__"
@@ -149,16 +150,6 @@ def _normalize_generic_args(
         () if arg is _TypingEmpty else ... if arg is _TypingEllipsis else arg
         for arg in args
     )
-
-
-def runtime_generic_init(
-    self: object,
-    args: tuple[object, ...],
-    origin: object,
-) -> None:
-    """Initialize a runtime generic instance."""
-    vars(self).setdefault("__args__", args)
-    vars(self).setdefault("__origin__", origin)
 
 
 class _AliasProxy(
@@ -274,17 +265,6 @@ class _RuntimeGenericDescriptor:
         return _AliasFactory(owner, self.result_type)
 
 
-def runtime_generic_proxy(result_type: Any) -> Any:
-    """Create a runtime generic descriptor with a result type."""
-    parameters = _get_generic_signature(result_type).__parameters__
-
-    @partial(runtime_generic, result_type=result_type)
-    class _Proxy(Generic[parameters]):  # type: ignore[misc]
-        pass
-
-    return cast(Any, _Proxy)
-
-
 def _has_origin(cls: object) -> bool:
     # If you're thinking about making a typing.Protocol
     # for typing this as a TypeGuard, I assure you I thought
@@ -371,12 +351,13 @@ def _get_parents(cls: Any) -> Iterator[Any]:
             )
         )
 
+    sig = _get_generic_signature(cls)
     origin, args = cls.__origin__, cls.__args__
     if not args:
         return (yield from map(_default_alias_or, parent_aliases_registry[origin]))
 
     # Map child type arguments to parent type arguments.
-    params = origin.__parameters__
+    params = sig.__args__
     parametrization = _get_parametrization(params, args)
     parent_aliases: list[_AliasProxy] = parent_aliases_registry[origin]
 
@@ -434,13 +415,19 @@ def get_mro(cls: Any) -> tuple[Any, ...]:
 
 def _get_generic_signature(cls: Any) -> Any:
     if cls.__module__ == "typing":
+        origin = cls
+        if isinstance(cls, _AliasProxy):
+            origin = cls.__origin__
         try:
-            parameters = cls.__parameters__
+            parameters = origin.__parameters__
         except AttributeError:
             # Smells like Python 3.9+ ;)
-            conjured_typevars = map("T".__add__, map(str, range(1, cls._nparams + 1)))
+            conjured_typevars = map(
+                "T".__add__,
+                map(str, range(1, origin._nparams + 1)),  # noqa: SLF001
+            )
             parameters = tuple(map(TypeVar, conjured_typevars))
-        return _AliasProxy(cls, parameters)
+        return _AliasProxy(origin, parameters)
     if _has_origin(cls):
         origin = cls.__origin__
         return _AliasProxy(origin, origin.__parameters__)
@@ -468,6 +455,8 @@ def _default_alias_or(cls: Any) -> Any:
             for arg in args
         ):
             return _get_default_alias(cls)
+    if cls.__module__ == "typing" and cls._name:
+        return _AliasProxy(getattr(__import__("typing"), cls._name), cls.__args__)
     return _AliasProxy(cls.__origin__, cls.__args__)
 
 
@@ -517,35 +506,10 @@ def _setup_runtime_generic(cls: Any, result_type: Any = None) -> None:
             del unique_mro_entries[unique_mro_entry]
 
 
-def runtime_generic(
-    cls: _R,
-    result_type: Any = None,
-) -> _R:
-    """
-    Mark a class as a runtime generic.
-
-    This is a class decorator that dynamically adds a `__class_getitem__` descriptor
-    to the class. This method returns a callable that takes type arguments and returns
-    a new instance of the class with the `__args__` attribute set to the type arguments.
-
-    Examples
-    --------
-    ```python
-    >>> from typing import Generic, TypeVar
-    >>> T = TypeVar("T")
-    ...
-    >>> @runtime_generic
-    ... class Foo(Generic[T]):
-    ...     pass
-    ...
-    >>> Foo[int]().__args__
-    (<class 'int'>,)
-
-    ```
-
-    """
-    _setup_runtime_generic(cls, result_type=result_type)
-    return cls
+def no_alias(cls_method: Callable[_P, _R]) -> Callable[_P, _R]:
+    """Mark a classmethod as not being passed a generic alias in place of cls."""
+    cls_method.__no_alias__ = True  # type: ignore[attr-defined]
+    return cls_method
 
 
 def get_type_arguments(rg: object) -> tuple[type[Any], ...]:
@@ -582,7 +546,172 @@ def get_type_arguments(rg: object) -> tuple[type[Any], ...]:
     return tuple(args) if isinstance(args, GenericArgs) else _typing_get_args(args)
 
 
-def no_alias(cls_method: Callable[_P, _R]) -> Callable[_P, _R]:
-    """Mark a classmethod as not being passed a generic alias in place of cls."""
-    cls_method.__no_alias__ = True  # type: ignore[attr-defined]
-    return cls_method
+def runtime_generic_proxy(result_type: Any) -> Any:
+    """Create a runtime generic descriptor with a result type."""
+    parameters = _get_generic_signature(result_type).__parameters__
+
+    @partial(runtime_generic, result_type=result_type)
+    class _Proxy(Generic[parameters]):  # type: ignore[misc]
+        pass
+
+    return cast(Any, _Proxy)
+
+
+def runtime_generic_init(
+    self: object,
+    args: tuple[object, ...],
+    origin: object,
+) -> None:
+    """Initialize a runtime generic instance."""
+    vars(self).setdefault("__args__", args)
+    vars(self).setdefault("__origin__", origin)
+
+
+def runtime_generic(
+    cls: _R,
+    result_type: Any = None,
+) -> _R:
+    """
+    Mark a class as a runtime generic.
+
+    This is a class decorator that dynamically adds a `__class_getitem__` descriptor
+    to the class. This method returns a callable that takes type arguments and returns
+    a new instance of the class with the `__args__` attribute set to the type arguments.
+
+    Examples
+    --------
+    ```python
+    >>> from typing import Generic, TypeVar
+    >>> T = TypeVar("T")
+    ...
+    >>> @runtime_generic
+    ... class Foo(Generic[T]):
+    ...     pass
+    ...
+    >>> Foo[int]().__args__
+    (<class 'int'>,)
+
+    ```
+
+    """
+    _setup_runtime_generic(cls, result_type=result_type)
+    return cls
+
+
+def _inner_type_check(  # noqa: PLR0911
+    subtype: Any,
+    cls: Any,
+    param: Any,
+) -> bool:
+    if Any in (subtype, cls):
+        return True
+    invariant_passes = cast(bool, subtype == cls)
+    if isinstance(param, TypeVarTuple):
+        return invariant_passes
+    if isinstance(subtype, _typing_GenericAlias) or isinstance(
+        cls,
+        _typing_GenericAlias,
+    ):
+        if param.__covariant__:
+            return type_check(subtype, cls)
+        if param.__contravariant__:
+            return type_check(cls, subtype)
+        return invariant_passes
+    if param.__covariant__:
+        return issubclass(subtype, cls)
+    if param.__contravariant__:
+        return issubclass(cls, subtype)
+    return invariant_passes
+
+
+def type_check(subtype: Any, cls: Any) -> bool:
+    """
+    Examine whether a runtime generic is a of another runtime generic.
+
+    Variance is supported. TypeVar bounds are not yet supported.
+
+    Parameters
+    ----------
+    subtype
+        The runtime generic to examine.
+    cls
+        The supertype runtime generic.
+
+    Examples
+    --------
+    ```python
+    >>> from typing import Any, Dict, Generic, Type, TypeVar
+    ...
+    >>> T = TypeVar("T")
+    >>> T_co = TypeVar("T_co", covariant=True)
+    >>> T_contra = TypeVar("T_contra", contravariant=True)
+    ...
+    >>> type_check(Dict[str, int], Dict[str, bool])  # KT, VT - invariant
+    False
+    >>> type_check(Type[str], Type[object])
+    True
+    >>> @runtime_generic
+    ... class Foo(Generic[T, T_co, T_contra]):
+    ...     pass
+    ...
+    >>> @runtime_generic
+    ... class Bar(Generic[T_contra, T_co, T], Foo[T, T_co, T_contra]):
+    ...     pass
+    ...
+    >>> type_check(Foo[int, int, int], Foo[int, int, int])
+    True
+    >>> type_check(Foo[int, bool, int], Foo[int, int, int])
+    True
+    >>> type_check(Foo[int, int, int], Foo[int, int, bool])
+    True
+    >>> type_check(Foo[int, int, int], Foo[int, bool, int])
+    False
+    >>> type_check(Foo[int, int, bool], Foo[int, int, int])
+    False
+    >>> type_check(Bar[int, int, int], Foo[int, int, bool])
+    True
+    >>> type_check(Bar[bool, int, int], Foo[int, int, int])
+    False
+    >>> type_check(Bar[int, bool, int], Foo[int, int, int])
+    True
+
+    ```
+
+    Returns
+    -------
+    bool
+        Whether `subtype` is a valid subtype of `cls`.
+
+    """
+    subtype = _default_alias_or(subtype)
+    cls = _default_alias_or(cls)
+
+    for mro_entry in get_mro(subtype):
+        if mro_entry.__origin__ == cls.__origin__:
+            mro_entry_parametrization = get_parametrization(mro_entry)
+            cls_parametrization = get_parametrization(cls)
+            sig = _get_generic_signature(cls)
+
+            for orig_param in sig.__args__:
+                param = orig_param
+                if _has_origin(param) and param.__origin__ is Unpack:
+                    (param,) = param.__args__
+
+                mro_entry_args = mro_entry_parametrization[param]
+                if not isinstance(mro_entry_args, tuple):
+                    mro_entry_args = (mro_entry_args,)
+
+                cls_args = cls_parametrization[param]
+                if not isinstance(cls_args, tuple):
+                    cls_args = (cls_args,)
+
+                if not all(
+                    map(
+                        partial(_inner_type_check, param=param),
+                        mro_entry_args,
+                        cls_args,
+                    ),
+                ):
+                    return False
+            return True
+    return False
