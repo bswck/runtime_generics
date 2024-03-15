@@ -10,47 +10,47 @@ that contains the type arguments of the instance.
 Examples
 --------
 ```python
+from __future__ import annotations
 
->>> # Python 3.8+
->>> from typing import Generic, TypeVar
->>> from runtime_generics import get_type_arguments, runtime_generic
-...
->>> T = TypeVar("T")
-...
->>> @runtime_generic
-... class MyGeneric(Generic[T]):
-...     type_argument: type[T]
-...
-...     def __init__(self) -> None:
-...         (self.type_argument,) = get_type_arguments(self)
-...
-...     @classmethod
-...     def whoami(cls) -> None:
-...         print(f"I am {cls}")
-...
+import io
+from typing import TYPE_CHECKING, Generic, TypeVar
 
-```
+from runtime_generics import get_alias, get_type_arguments, runtime_generic, type_check
 
-```python
-# Python 3.12+
-from runtime_generics import get_type_arguments, runtime_generic
+if TYPE_CHECKING:
+    from typing import IO, Literal, overload
+
+T = TypeVar("T", str, bytes)
+
 
 @runtime_generic
-class MyGeneric[T]:
-    type_argument: type[T]
+class IOWrapper(Generic[T]):
+    data_type: type[T]
 
-    def __init__(self) -> None:
-        (self.type_argument,) = get_type_arguments(self)
+    def __init__(self, stream: IO[T]) -> None:
+        (self.data_type,) = get_type_arguments(self)
+        self.stream = stream
 
-    @classmethod
-    def whoami(cls) -> None:
-        print(f"I am {cls}")
+    if TYPE_CHECKING:
+        @overload
+        def is_binary(self: IOWrapper[bytes]) -> Literal[True]: ...
 
-my_generic = MyGeneric[int]()
-print(my_generic.type_argument)  # <class 'int'>
-my_generic.whoami()  # I am MyGeneric[int]
+        @overload
+        def is_binary(self: IOWrapper[str]) -> Literal[False]: ...
+
+    def is_binary(self) -> bool:
+        # alternatively here: `self.data_type == bytes`
+        return type_check(self, IOWrapper[bytes])
+
+    def __repr__(self) -> str:
+        return f"<{get_alias(self)} object at ...>"
+
+
+my_binary_data = IOWrapper[bytes](io.BytesIO(b"foo"))
+assert my_binary_data.data_type is bytes
+assert my_binary_data.is_binary()
+assert repr(IOWrapper[str](io.StringIO())) == "<__main__.IOWrapper[str] object at ...>"
 ```
-
 
 """
 

@@ -53,7 +53,7 @@ class IOWrapper[T: str | bytes]:
         def is_binary(self: IOWrapper[str]) -> Literal[False]: ...
 
     def is_binary(self) -> bool:
-        # alternatively here: `self.type_argument == bytes`
+        # alternatively here: `self.data_type == bytes`
         return type_check(self, IOWrapper[bytes])
 
     def __repr__(self) -> str:
@@ -63,7 +63,7 @@ class IOWrapper[T: str | bytes]:
 my_binary_data = IOWrapper[bytes](io.BytesIO(b"foo"))
 assert my_binary_data.data_type is bytes
 assert my_binary_data.is_binary()
-assert repr(IOWrapper[str](io.StringIO(""))) == "<__main__.IOWrapper[str] object at ...>"
+assert repr(IOWrapper[str](io.StringIO())) == "<__main__.IOWrapper[str] object at ...>"
 ```
 
 3.8+:
@@ -98,7 +98,7 @@ class IOWrapper(Generic[T]):
         def is_binary(self: IOWrapper[str]) -> Literal[False]: ...
 
     def is_binary(self) -> bool:
-        # alternatively here: `self.type_argument == bytes`
+        # alternatively here: `self.data_type == bytes`
         return type_check(self, IOWrapper[bytes])
 
     def __repr__(self) -> str:
@@ -108,7 +108,7 @@ class IOWrapper(Generic[T]):
 my_binary_data = IOWrapper[bytes](io.BytesIO(b"foo"))
 assert my_binary_data.data_type is bytes
 assert my_binary_data.is_binary()
-assert repr(IOWrapper[str](io.StringIO(""))) == "<__main__.IOWrapper[str] object at ...>"
+assert repr(IOWrapper[str](io.StringIO())) == "<__main__.IOWrapper[str] object at ...>"
 ```
 
 # For enterprise

@@ -6,7 +6,111 @@
 [![Documentation Status](https://readthedocs.org/projects/runtime-generics/badge/?version=latest)](https://runtime-generics.readthedocs.io/en/latest/?badge=latest)
 [![Lifted?](https://tidelift.com/badges/package/pypi/runtime-generics)](https://tidelift.com/subscription/pkg/pypi-runtime-generics?utm_source=pypi-runtime-generics&utm_medium=readme)
 
-Reuse generic class type arguments at runtime.
+Highly into type-safe Python code?
+
+_runtime_generics_ is a niche Python library that allows you to reuse type arguments explicitly passed at runtime
+to generic classes before instantiation.
+
+The library does four things:
+- makes it possible to retrieve the type arguments passed to the generic class at runtime
+  before the class was instantiated: `get_type_arguments()`, `get_alias()`;
+- given a parametrized generic class (generic alias),
+  makes every class method use generic alias `cls` instead of the origin class
+  (unless decorated with `@no_alias`);
+- offers facilities to find how parent classes are parametrized (
+  e.g. if `Foo[T]` inherits from `Dict[str, T]`,
+  finds that `Dict[str, int]` is a parent for `Foo[int]`
+  ): `get_parents()`;
+- exposes utilities that allow to inspect C3-linearized MROs of runtime generics
+  and type-check them with variance support: `get_mro()`, `type_check()`.
+
+# A simple example
+3.12+ ([PEP 695](https://peps.python.org/pep-0695) syntax):
+```python
+from __future__ import annotations
+
+import io
+from typing import TYPE_CHECKING
+
+from runtime_generics import get_alias, get_type_arguments, runtime_generic, type_check
+
+if TYPE_CHECKING:
+    from typing import IO, Literal, overload
+
+
+@runtime_generic
+class IOWrapper[T: str | bytes]:
+    data_type: type[T]
+
+    def __init__(self, stream: IO[T]) -> None:
+        (self.data_type,) = get_type_arguments(self)
+        self.stream = stream
+
+    if TYPE_CHECKING:
+        @overload
+        def is_binary(self: IOWrapper[bytes]) -> Literal[True]: ...
+
+        @overload
+        def is_binary(self: IOWrapper[str]) -> Literal[False]: ...
+
+    def is_binary(self) -> bool:
+        # alternatively here: `self.data_type == bytes`
+        return type_check(self, IOWrapper[bytes])
+
+    def __repr__(self) -> str:
+        return f"<{get_alias(self)} object at ...>"
+
+
+my_binary_data = IOWrapper[bytes](io.BytesIO(b"foo"))
+assert my_binary_data.data_type is bytes
+assert my_binary_data.is_binary()
+assert repr(IOWrapper[str](io.StringIO())) == "<__main__.IOWrapper[str] object at ...>"
+```
+
+3.8+:
+
+```python
+from __future__ import annotations
+
+import io
+from typing import TYPE_CHECKING, Generic, TypeVar
+
+from runtime_generics import get_alias, get_type_arguments, runtime_generic, type_check
+
+if TYPE_CHECKING:
+    from typing import IO, Literal, overload
+
+T = TypeVar("T", str, bytes)
+
+
+@runtime_generic
+class IOWrapper(Generic[T]):
+    data_type: type[T]
+
+    def __init__(self, stream: IO[T]) -> None:
+        (self.data_type,) = get_type_arguments(self)
+        self.stream = stream
+
+    if TYPE_CHECKING:
+        @overload
+        def is_binary(self: IOWrapper[bytes]) -> Literal[True]: ...
+
+        @overload
+        def is_binary(self: IOWrapper[str]) -> Literal[False]: ...
+
+    def is_binary(self) -> bool:
+        # alternatively here: `self.data_type == bytes`
+        return type_check(self, IOWrapper[bytes])
+
+    def __repr__(self) -> str:
+        return f"<{get_alias(self)} object at ...>"
+
+
+my_binary_data = IOWrapper[bytes](io.BytesIO(b"foo"))
+assert my_binary_data.data_type is bytes
+assert my_binary_data.is_binary()
+assert repr(IOWrapper[str](io.StringIO())) == "<__main__.IOWrapper[str] object at ...>"
+```
 
 # For enterprise
 Available as part of the Tidelift Subscription.
