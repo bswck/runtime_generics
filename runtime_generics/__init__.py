@@ -92,6 +92,7 @@ except ImportError:  # pragma: no cover
 
 
 __all__ = (
+    "get_alias",
     "get_type_arguments",
     "get_parametrization",
     "get_parents",
