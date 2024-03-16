@@ -25,7 +25,7 @@ The library does four things:
   makes every class method use generic alias `cls` instead of the origin class
   (unless decorated with `@no_alias`).
 
-# A simple example
+# A Simple Example
 3.12+ ([PEP 695](https://peps.python.org/pep-0695) syntax):
 
 ```python
