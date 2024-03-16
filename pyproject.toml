@@ -4,7 +4,7 @@
 
 [tool.poetry]
 name = "runtime_generics"
-version = "3.1.0"
+version = "3.1.1"
 description = "Reuse generic class type arguments at runtime."
 authors = ["bswck <bswck.dev@gmail.com>"]
 license = "MIT"
@@ -43,6 +43,8 @@ keyring = "^24.3.0"
 
 [tool.pytest.ini_options]
 addopts = "--doctest-modules"
+
+
 
 
 
