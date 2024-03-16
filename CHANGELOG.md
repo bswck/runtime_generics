@@ -7,6 +7,16 @@ This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html
 
 <!-- insertion marker -->
 
+## [v3.1.0](https://github.com/bswck/runtime_generics/tree/v3.1.0) (2024-03-16)
+
+
+### Added
+
+- Exposed `get_alias()` to retrieve the alias form used in runtime generic instance construction.
+- Implemented `get_mro()` function for resolving MROs of runtime generics.
+- Implemented `type_check()` for checking whether a runtime generic is a valid subtype of another runtime generic.
+
+
 ## [v3.0.5](https://github.com/bswck/runtime_generics/tree/v3.0.5) (2024-02-24)
 
 
