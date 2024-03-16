@@ -1,7 +1,7 @@
 <!--
-This file was generated from bswck/skeleton@0.0.2rc-168-gbfcbe8f.
+This file was generated from bswck/skeleton@0.0.2rc-178-gf56f2a7.
 Instead of changing this particular file, you might want to alter the template:
-https://github.com/bswck/skeleton/tree/0.0.2rc-168-gbfcbe8f/fragments/contributing.md
+https://github.com/bswck/skeleton/tree/0.0.2rc-178-gf56f2a7/fragments/contributing.md
 -->
 # Contributing to [runtime_generics](https://github.com/bswck/runtime_generics) 🎉
 Contributions are very welcome. 🚀
@@ -46,9 +46,9 @@ Ready to contribute? Here's a quick guide on how to set up runtime_generics and 
 
 
 <!--
-This section was generated from bswck/skeleton@0.0.2rc-168-gbfcbe8f.
+This section was generated from bswck/skeleton@0.0.2rc-178-gf56f2a7.
 Instead of changing this particular file, you might want to alter the template:
-https://github.com/bswck/skeleton/tree/0.0.2rc-168-gbfcbe8f/fragments/guide.md
+https://github.com/bswck/skeleton/tree/0.0.2rc-178-gf56f2a7/fragments/guide.md
 -->
 > [!Note]
 > If you use Windows, it is highly recommended to complete the installation in the way presented below through [WSL2](https://learn.microsoft.com/en-us/windows/wsl/install).
