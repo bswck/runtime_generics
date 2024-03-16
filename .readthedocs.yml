@@ -13,6 +13,8 @@ build:
     python: "3.8"
   jobs:
     post_install:
-    - "python -m pip install poetry"
+    - "python -m pip install poetry poetry-plugin-export"
     - "poetry config virtualenvs.create false"
-    - "poetry install --with=docs"
+    - "poetry install --only=docs --sync"
+    - "poetry export -f requirements.txt --output requirements.txt"
+    - "python -m pip install -r requirements.txt"
