@@ -7,6 +7,14 @@ This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html
 
 <!-- insertion marker -->
 
+## [v3.2.0](https://github.com/bswck/runtime_generics/tree/v3.2.0) (2024-04-14)
+
+
+### Fixed
+
+- Relaxed support Python version range to >=3.8.
+
+
 ## [v3.1.0](https://github.com/bswck/runtime_generics/tree/v3.1.0) (2024-03-16)
 
 
