@@ -1,12 +1,12 @@
-# This file was generated from bswck/skeleton@0.0.2rc-215-g792492f.
+# This file was generated from skeleton-ci/skeleton-python@0.0.2rc-215-g792492f.
 # Instead of changing this particular file, you might want to alter the template:
-# https://github.com/bswck/skeleton/tree/0.0.2rc-215-g792492f/project/pyproject.toml.jinja
+# https://github.com/skeleton-ci/skeleton-python/tree/0.0.2rc-215-g792492f/project/pyproject.toml.jinja
 
 [tool.poetry]
 name = "runtime_generics"
 version = "3.1.1"
 description = "Reuse generic class type arguments at runtime."
-authors = ["bswck <bswck.dev@gmail.com>"]
+authors = ["bswck <bartoszpiotrslawecki@gmail.com>"]
 license = "MIT"
 readme = "README.md"
 packages = [{ include = "runtime_generics/" }]
@@ -19,16 +19,16 @@ Distribution = "https://pypi.org/project/runtime-generics/"
 Coverage = "https://coverage-badge.samuelcolvin.workers.dev/redirect/bswck/runtime_generics"
 
 [tool.poetry.dependencies]
-python = ">=3.8,<4.0"
-typing-extensions = "^4.9.0"
-backframe = "^0.1.1"
+python = ">=3.8"
+typing-extensions = ">=4.9.0"
+backframe = ">=0.1.1"
 
 [tool.poetry.group.dev.dependencies]
 
 [tool.poetry.group.dev-skeleton.dependencies]
-# This dependency group was generated from bswck/skeleton@0.0.2rc-215-g792492f.
+# This dependency group was generated from skeleton-ci/skeleton-python@0.0.2rc-215-g792492f.
 # Instead of changing this particular file, you might want to alter the template:
-# https://github.com/bswck/skeleton/tree/0.0.2rc-215-g792492f/project/pyproject.toml.jinja
+# https://github.com/skeleton-ci/skeleton-python/tree/0.0.2rc-215-g792492f/project/pyproject.toml.jinja
 mypy = ">=1.9.0"
 ruff = ">=0.3.4"
 towncrier = ">=23.11.0"

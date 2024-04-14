@@ -55,17 +55,6 @@ pytz = {version = ">=2015.7", markers = "python_version < \"3.9\""}
 dev = ["freezegun (>=1.0,<2.0)", "pytest (>=6.0)", "pytest-cov"]
 
 [[package]]
-name = "backframe"
-version = "0.1.1"
-description = "Inspect the caller."
-optional = false
-python-versions = ">=3.8,<4.0"
-files = [
-    {file = "backframe-0.1.1-py3-none-any.whl", hash = "sha256:f0a48ac76408a0ff5bcc08bdb91cd2c38c7b8cf461af233f4c081b292d9b67ce"},
-    {file = "backframe-0.1.1.tar.gz", hash = "sha256:7b64f64cc7f96958e022fab203cc7cf0b68432b6821e43532d28b6945a88afa3"},
-]
-
-[[package]]
 name = "backports-tarfile"
 version = "1.0.0"
 description = "Backport of CPython tarfile module"
@@ -1868,5 +1857,5 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 
 [metadata]
 lock-version = "2.0"
-python-versions = ">=3.8,<4.0"
-content-hash = "a0a763b9274a3216261f8ffc905d6342eb5dc5633cac327b379e43dee387fcc2"
+python-versions = ">=3.8"
+content-hash = "03e4a184374b1ae07b74b90d0319b28e20b9890a9ac9f6edc94367742f2b24c2"

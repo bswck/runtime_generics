@@ -1,11 +1,11 @@
 _commit: 0.0.2rc-215-g792492f
-_src_path: gh:bswck/skeleton
+_src_path: gh:skeleton-ci/skeleton-python
 author: bswck
 cli: false
 copyright: Bartosz Sławecki
 description: Reuse generic class type arguments at runtime.
 docs: true
-email: bswck.dev@gmail.com
+email: bartoszpiotrslawecki@gmail.com
 github: bswck
 license: MIT
 package: runtime_generics
@@ -15,7 +15,7 @@ pypi_description: Reuse generic class type arguments at runtime.
 pypi_project: runtime-generics
 pypy: true
 python: '3.8'
-python_until: '4.0'
+python_until: ''
 repo: runtime_generics
 rtd: runtime-generics
 tests: true
