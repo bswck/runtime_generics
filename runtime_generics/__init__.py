@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: MIT
 # (C) 2024-present Bartosz Sławecki (bswck)
 """
-`runtime_generics`.
+Reuse generic class type arguments at runtime.
 
 This library provides a decorator that allows you to mark a class as
 a 'runtime generic': after instantiation, the class will have a `__args__` attribute
