@@ -7,6 +7,12 @@ This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html
 
 <!-- insertion marker -->
 
+## [v3.3.0](https://github.com/bswck/runtime_generics/tree/v3.3.0) (2024-05-11)
+
+
+No significant changes.
+
+
 ## [v3.2.0](https://github.com/bswck/runtime_generics/tree/v3.2.0) (2024-04-14)
 
 

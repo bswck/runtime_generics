@@ -8,7 +8,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "runtime_generics"
-version = "3.2.1"
+version = "3.3.0"
 description = "Reuse generic class type arguments at runtime."
 authors = ["bswck <bartoszpiotrslawecki@gmail.com>"]
 license = "MIT"
