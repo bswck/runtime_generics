@@ -353,19 +353,17 @@ def get_parametrization(runtime_generic: Any) -> dict[Any, Any]:
 def _get_parents(cls: Any) -> Iterator[Any]:
     """Get all parametrized parents of a runtime generic class or instance."""
     if not _has_origin(cls):
-        return (
-            yield from map(
-                get_alias,
-                parent_aliases_registry[
-                    cls if isinstance(cls, type) else cls.__class__
-                ],
-            )
+        yield from map(
+            get_alias,
+            parent_aliases_registry[cls if isinstance(cls, type) else cls.__class__],
         )
+        return
 
     sig = _get_generic_signature(cls)
     origin, args = cls.__origin__, cls.__args__
     if not args:
-        return (yield from map(get_alias, parent_aliases_registry[origin]))
+        yield from map(get_alias, parent_aliases_registry[origin])
+        return
 
     # Map child type arguments to parent type arguments.
     params = sig.__args__
